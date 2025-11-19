@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>兩條路的十字路口 - 直接觀看</title>
+    <title>兩條路的十字路口 - 直接觀看（動畫版）</title>
+
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -33,6 +34,8 @@
             flex:1; width:100%; max-width:1000px; padding:20px;
             display:flex; flex-direction:column; align-items:center;
         }
+
+        /* ------------------ 主圖片區 ------------------ */
         .image-container {
             position:relative; width:100%; max-width:600px; height:500px;
             background:white; border-radius:20px;
@@ -44,163 +47,167 @@
             width:100%; height:100%; object-fit:contain; padding:20px;
         }
 
+        /* ------------------ 選項泡泡 ------------------ */
         .choice {
             position:absolute;
             display:flex; flex-direction:column; align-items:center;
-            cursor:pointer; opacity:0; transition:opacity 0.4s ease, transform 0.3s ease;
+            cursor:pointer; opacity:0;
+            transition:transform 0.3s ease, opacity 0.5s ease;
+            animation: float 3s ease-in-out infinite;
         }
         .choice-icon {
-            width:60px; height:60px; border-radius:50%;
+            width:70px; height:70px; border-radius:50%;
             background:white; box-shadow:0 5px 15px rgba(0,0,0,0.2);
             display:flex; align-items:center; justify-content:center;
-            font-size:28px; margin-bottom:5px;
+            font-size:30px; margin-bottom:5px;
         }
-        .choice-label { font-size:0.8rem; color:#444; }
-        .choice.show { opacity:1; }
-        .choice:hover { transform:translateY(-5px); }
-
-        .choice-book   { left:15%; bottom:25%; }
-        .choice-phone  { right:15%; bottom:25%; }
-        .choice-heart  { left:20%; top:20%; }
-        .choice-friend { right:20%; top:20%; }
-        .choice-dream  { left:50%; transform:translateX(-50%); top:10%; }
-
-        .start-btn {
-            background:linear-gradient(135deg,#ffa726,#fb8c00);
-            color:white; border:none; padding:15px 40px;
-            border-radius:30px; font-size:1.1rem; font-weight:bold;
-            cursor:pointer; transition:all 0.3s ease;
-            box-shadow:0 5px 15px rgba(255,167,38,0.4);
-            margin:20px 0;
+        .choice-label {
+            font-size:0.85rem; color:#444; text-shadow:0 0 4px #fff;
         }
-        .start-btn:hover { transform:scale(1.05); box-shadow:0 10px 25px rgba(255,167,38,0.6); }
 
-        .message-popup {
-            position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-            background:#ef6c00; color:white;
-            padding:20px 30px; border-radius:15px;
-            font-size:1.05rem; text-align:center;
-            opacity:0; pointer-events:none; transition:opacity 0.5s ease;
-            z-index:100; max-width:80%;
-            box-shadow:0 10px 30px rgba(0,0,0,0.3);
+        /* 進場：淡入 + 上浮 */
+        .appear {
+            animation: appearUp 0.8s ease forwards;
         }
-        .message-popup.show { opacity:1; }
 
+        @keyframes appearUp {
+            from { opacity:0; transform:translateY(30px); }
+            to   { opacity:1; transform:translateY(0px); }
+        }
+
+        /* 漂浮動畫 */
+        @keyframes float {
+            0%,100% { transform:translateY(0); }
+            50%    { transform:translateY(-10px); }
+        }
+
+        /* ------------------ 思考引導 ------------------ */
         .question-section {
-            width:100%; max-width:600px; background:white;
+            width:100%; max-width:600px;
+            background:white;
             padding:30px; border-radius:20px;
             box-shadow:0 10px 30px rgba(0,0,0,0.1);
             margin-top:20px; display:none;
+            animation: slideIn 0.5s ease;
         }
-        .question-section.show { display:block; animation:slideIn 0.5s ease; }
-        .question-section h2 { color:#333; margin-bottom:20px; font-size:1.5rem; }
-        .question-section ol { color:#555; line-height:1.8; padding-left:20px; }
-        .question-section li { margin-bottom:15px; }
+        .question-section h2 {
+            color:#333; margin-bottom:20px; font-size:1.5rem;
+        }
+        .question-section ol {
+            color:#555; line-height:1.8; padding-left:20px;
+        }
+        .question-section li { margin-bottom:10px; }
 
         @keyframes slideIn {
             from { opacity:0; transform:translateY(20px); }
             to   { opacity:1; transform:translateY(0); }
         }
-        @media (max-width:768px){
-            .back-btn{ position:static; transform:none; margin-bottom:10px; }
-            h1{ font-size:1.5rem; margin-top:10px; }
-            .image-container{ height:400px; }
+
+        .message-popup {
+            position:fixed; top:50%; left:50%;
+            transform:translate(-50%,-50%);
+            background:#ef6c00; color:white;
+            padding:20px 30px; border-radius:15px;
+            font-size:1rem; text-align:center;
+            opacity:0; pointer-events:none;
+            transition:opacity 0.5s ease;
+            z-index:100; max-width:80%;
+            box-shadow:0 10px 30px rgba(0,0,0,0.3);
         }
+        .message-popup.show { opacity:1; }
     </style>
 </head>
+
 <body>
     <div class="header">
-        <a href="index.html" class="back-btn">← 返回選單</a>
+        <a href="index.html" class="back-btn">← 返回</a>
         <h1>兩條路的十字路口</h1>
         <p class="subtitle">Decision Making（決策與價值）</p>
     </div>
 
     <div class="main-container">
-        <button class="start-btn" id="startBtn">開始走進你的十字路口</button>
-
         <div class="image-container">
-            <img src="sel-4.png" alt="兩條路的十字路口" class="illustration">
+            <img src="sel-4.png" class="illustration">
 
-            <div class="choice choice-book" data-message="書本：代表學習與實力，走起來比較辛苦，但會慢慢累積。">
-                <div class="choice-icon">📚</div>
-                <div class="choice-label">成績／學習</div>
+            <!-- 六個選項 -->
+            <div class="choice c1" data-message="成績：走起來辛苦，但會累積你的實力。" style="left:15%; bottom:28%;">
+                <div class="choice-icon">📚</div><div class="choice-label">學習</div>
             </div>
-            <div class="choice choice-phone" data-message="手機：代表即時的輕鬆與放鬆，但要小心被時間偷走。">
-                <div class="choice-icon">📱</div>
-                <div class="choice-label">娛樂／分心</div>
+
+            <div class="choice c2" data-message="娛樂：能放鬆，但時間很容易被偷走。" style="right:15%; bottom:28%;">
+                <div class="choice-icon">📱</div><div class="choice-label">娛樂</div>
             </div>
-            <div class="choice choice-heart" data-message="愛心：代表你在乎的價值與初心。">
-                <div class="choice-icon">❤️</div>
-                <div class="choice-label">理想／價值</div>
+
+            <div class="choice c3" data-message="理想：不一定容易，但最接近真正想成為的自己。" style="left:20%; top:20%;">
+                <div class="choice-icon">⭐</div><div class="choice-label">夢想</div>
             </div>
-            <div class="choice choice-friend" data-message="好友：代表關係與陪伴，有時會影響你怎麼選擇。">
-                <div class="choice-icon">👥</div>
-                <div class="choice-label">朋友／人際</div>
+
+            <div class="choice c4" data-message="朋友：陪伴重要，但選擇依然要忠於自己。" style="right:20%; top:20%;">
+                <div class="choice-icon">👥</div><div class="choice-label">朋友</div>
             </div>
-            <div class="choice choice-dream" data-message="夢想：也許看起來遙遠，但那是你真正想去的地方。">
-                <div class="choice-icon">🌟</div>
-                <div class="choice-label">夢想</div>
+
+            <div class="choice c5" data-message="安全感：舒服、穩定，但可能離夢想更遠一點。" style="left:40%; bottom:10%;">
+                <div class="choice-icon">🛌</div><div class="choice-label">安全圈</div>
+            </div>
+
+            <div class="choice c6" data-message="價值：你真正想守護的，不一定會被大家理解。" style="right:40%; bottom:10%;">
+                <div class="choice-icon">❤️</div><div class="choice-label">價值</div>
             </div>
         </div>
 
-        <div class="message-popup" id="messagePopup"></div>
+        <div class="message-popup" id="popup"></div>
 
-        <div class="question-section" id="questionSection">
+        <div class="question-section" id="question">
             <h2>🤔 思考引導</h2>
             <ol>
-                <li>最近讓你卡住的選擇是什麼？（例如科系、社團、感情、讀書或休息）</li>
-                <li>你做決定時最看重的是什麼？舒適、安全、成績、別人的期待，還是自己的夢想？</li>
-                <li>如果「不會失敗」，你其實最想走哪條路？那條路對你來說代表什麼？</li>
+                <li>最近讓你卡住的選擇是什麼？為什麼？</li>
+                <li>做決定時，你最在乎的是誰的期待？</li>
+                <li>如果不會失敗，你最想選哪一條路？</li>
             </ol>
         </div>
     </div>
 
     <script>
-        const startBtn = document.getElementById('startBtn');
-        const choices = document.querySelectorAll('.choice');
-        const messagePopup = document.getElementById('messagePopup');
-        const questionSection = document.getElementById('questionSection');
-        let clickedCount = 0;
+        const popup = document.getElementById("popup");
+        const question = document.getElementById("question");
+        const choices = document.querySelectorAll(".choice");
+        let clickCount = 0;
 
-        choices.forEach(c => c.style.opacity = 0);
-
-        startBtn.addEventListener('click', () => {
-            startBtn.style.display = 'none';
-            choices.forEach((choice, index) => {
-                setTimeout(() => {
-                    choice.classList.add('show');
-                }, index * 400);
-            });
+        // 1. 進場動畫（依序浮出）
+        choices.forEach((c, i) => {
+            setTimeout(() => {
+                c.classList.add("appear");
+            }, 300 * i);
         });
 
-        choices.forEach(choice => {
-            choice.addEventListener('click', () => {
-                if (!choice.classList.contains('clicked')) {
-                    choice.classList.add('clicked');
-                    clickedCount++;
-                }
-                const msg = choice.getAttribute('data-message');
+        // 2. 點擊互動
+        choices.forEach(c => {
+            c.addEventListener("click", () => {
+                const msg = c.getAttribute("data-message");
                 showMessage(msg);
 
-                if (clickedCount >= 3) {
+                // 點擊動畫：放大 → 縮小 → 淡出
+                c.style.transition = "transform 0.3s ease, opacity 0.5s ease";
+                c.style.transform = "scale(1.2)";
+                setTimeout(() => {
+                    c.style.transform = "scale(0.8)";
+                    c.style.opacity = "0";
+                }, 200);
+
+                clickCount++;
+                if (clickCount >= 3) {
                     setTimeout(() => {
-                        questionSection.classList.add('show');
-                    }, 800);
+                        question.style.display = "block";
+                    }, 700);
                 }
             });
         });
 
-        function showMessage(message) {
-            messagePopup.textContent = message;
-            messagePopup.classList.add('show');
-            setTimeout(() => {
-                messagePopup.classList.remove('show');
-            }, 3000);
+        function showMessage(text) {
+            popup.textContent = text;
+            popup.classList.add("show");
+            setTimeout(() => popup.classList.remove("show"), 2500);
         }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            console.log('兩條路的十字路口頁面載入完成');
-        });
     </script>
 </body>
 </html>
