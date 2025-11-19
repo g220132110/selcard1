@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>SEL 卡片 4 ─ 兩條路的十字路口</title>
+  <title>SEL 卡片 4 ─ 兩條路的十字路口（動畫版）</title>
 
   <!-- MindAR + ThreeJS -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
@@ -12,8 +12,8 @@
 
   <style>
     body, html {
-      padding: 0;
       margin: 0;
+      padding: 0;
       overflow: hidden;
       font-family: "Microsoft JhengHei", Arial, sans-serif;
     }
@@ -30,9 +30,9 @@
       color: white;
       padding: 14px 22px;
       border-radius: 14px;
-      text-align: center;
       opacity: 0;
       transition: opacity 0.4s;
+      text-align: center;
       z-index: 999;
       width: 80%;
       max-width: 430px;
@@ -40,35 +40,40 @@
     }
     #messageBox { top: 10vh; }
     #questionBox { bottom: 8vh; font-size: 0.95rem; }
+
+    /* 進場動畫（淡入＋上浮） */
+    @keyframes appearUp {
+      0%   { opacity: 0; transform: translateY(0.2); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 
 <body>
   <div id="mindar-container"></div>
 
-  <!-- 彈出訊息 -->
+  <!-- 上方訊息 -->
   <div id="messageBox"></div>
 
-  <!-- 思考引導 -->
+  <!-- 下方反思 -->
   <div id="questionBox">
     <b>思考引導：</b><br><br>
     ● 最近讓你卡住的選擇是什麼？<br>
     ● 做決定時，你最在乎的是誰的期待？<br>
-    ● 如果「不會失敗」，你其實最想走哪條路？
+    ● 如果「不會失敗」，你會選哪一條路？
   </div>
 
   <script type="module">
     const messageBox = document.getElementById("messageBox");
     const questionBox = document.getElementById("questionBox");
 
-    // 六種「選擇泡泡」訊息
     const choiceMessages = [
-      "成績／學習：辛苦，但能慢慢累積你的實力。",
+      "成績／學習：辛苦，但會累積你的實力。",
       "手機娛樂：能讓你放鬆，但要小心被時間偷走。",
-      "人際關係：朋友會影響你，但你依然可以做自己的選擇。",
-      "價值／初心：你真正想守護的，不一定會被別人理解。",
-      "休息／舒適圈：舒服安全，但可能離夢想更遠。",
-      "夢想：也許不確定，但最貼近真正的你。"
+      "朋友：陪伴重要，但選擇依然要忠於自己。",
+      "價值／初心：真正想守護的，未必被大家理解。",
+      "安全圈：舒服安穩，但可能離夢想更遠。",
+      "夢想：不確定，但最貼近真正的你。"
     ];
 
     let clickCount = 0;
@@ -76,10 +81,7 @@
     function showMessage(text) {
       messageBox.innerText = text;
       messageBox.style.opacity = 1;
-
-      setTimeout(() => {
-        messageBox.style.opacity = 0;
-      }, 2900);
+      setTimeout(() => { messageBox.style.opacity = 0; }, 2800);
     }
 
     function tryShowQuestions() {
@@ -88,7 +90,7 @@
       }
     }
 
-    // 啟動 AR
+    // ----------------------- 啟動 AR -----------------------
     const startAR = async () => {
       const mindarThree = new window.MINDAR.IMAGE.MindARThree({
         container: document.querySelector("#mindar-container"),
@@ -96,46 +98,50 @@
       });
 
       const { renderer, scene, camera } = mindarThree;
-
       const anchor = mindarThree.addAnchor(0);
 
-      // Light
-      const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1.1);
+      // 光源
+      const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1.2);
       scene.add(light);
 
-      // 六種選擇泡泡
-      const choices = [];
-      const geometry = new THREE.SphereGeometry(0.18, 32, 32);
-
-      const baseMaterial = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
+      // 六個泡泡
+      const bubbles = [];
+      const geo = new THREE.SphereGeometry(0.18, 32, 32);
+      const baseMat = new THREE.MeshStandardMaterial({
         transparent: true,
-        opacity: 0.55,
+        opacity: 0
       });
 
-      // 六顆泡泡位置（左右分散）
       const positions = [
-        [-0.6,  0.2],   // 成績 / 書本
-        [ 0.6,  0.2],   // 手機
-        [-0.6, -0.2],   // 朋友
-        [ 0.6, -0.2],   // 價值
-        [-0.2,  0.0],   // 休息
-        [ 0.2,  0.0],   // 夢想
+        [-0.6,  0.25],
+        [ 0.6,  0.25],
+        [-0.6, -0.2],
+        [ 0.6, -0.2],
+        [-0.2,  0.05],
+        [ 0.2,  0.05],
+      ];
+
+      const colors = [
+        0xffc966, 0x66bbff, 0xff7777,
+        0x99dd99, 0xcccccc, 0xffee66
       ];
 
       for (let i = 0; i < 6; i++) {
-        const bubble = new THREE.Mesh(geometry, baseMaterial.clone());
-
+        const bubble = new THREE.Mesh(geo, baseMat.clone());
         bubble.position.set(positions[i][0], positions[i][1], 0);
+        bubble.material.color.setHex(colors[i]);
         bubble.userData.index = i;
 
-        // 上色區分
-        const colors = [0xffcc66, 0x66bbff, 0xff7777, 0x99dd99, 0xcccccc, 0xffee66];
-        bubble.material.color.setHex(colors[i]);
-
         anchor.group.add(bubble);
-        choices.push(bubble);
+        bubbles.push(bubble);
       }
+
+      // 進場動畫：依序淡入
+      bubbles.forEach((b, i) => {
+        setTimeout(() => {
+          b.material.opacity = 0.6;
+        }, i * 350);
+      });
 
       // 點擊偵測
       const raycaster = new THREE.Raycaster();
@@ -146,16 +152,22 @@
         mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(choices);
+        const hit = raycaster.intersectObjects(bubbles);
 
-        if (intersects.length > 0) {
-          const obj = intersects[0].object;
+        if (hit.length > 0) {
+          const obj = hit[0].object;
           const idx = obj.userData.index;
 
+          // 顯示訊息
           showMessage(choiceMessages[idx]);
 
-          // 泡泡淡出
-          obj.material.opacity = 0;
+          // 點擊動畫：放大 → 縮小 → 淡出
+          obj.scale.set(1.3, 1.3, 1.3);
+
+          setTimeout(() => {
+            obj.scale.set(0.5, 0.5, 0.5);
+            obj.material.opacity = 0;
+          }, 180);
 
           clickCount++;
           tryShowQuestions();
@@ -165,11 +177,9 @@
       // 動畫 loop
       await mindarThree.start();
       renderer.setAnimationLoop(() => {
-        // 飄動動畫
-        choices.forEach((c, i) => {
-          c.position.y += Math.sin(Date.now() * 0.001 + i) * 0.00045;
+        bubbles.forEach((b, i) => {
+          b.position.y += Math.sin(Date.now() * 0.001 + i) * 0.00045;
         });
-
         renderer.render(scene, camera);
       });
     };
