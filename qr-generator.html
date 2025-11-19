@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code 生成器 - 被看不見的壓力球</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Noto Sans TC', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        #qrcodeContainer {
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+        #qrcodeContainer.show {
+            display: block;
+        }
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .download-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #4ade80;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 10px 5px;
+            transition: background 0.3s;
+        }
+        .download-btn:hover {
+            background: #22c55e;
+        }
+        .info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .preset-btn {
+            padding: 10px;
+            background: #f0f0f0;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .preset-btn:hover {
+            background: #e0e0e0;
+            border-color: #667eea;
+        }
+        .preset-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 QR Code 生成器</h1>
+        <p class="subtitle">為「被看不見的壓力球」生成 QR Code</p>
+
+        <div class="presets">
+            <button class="preset-btn" onclick="usePreset('ar')">
+                🎯 AR 版本
+            </button>
+            <button class="preset-btn" onclick="usePreset('direct')">
+                👆 直接體驗版本
+            </button>
+        </div>
+
+        <div class="input-group">
+            <label for="url">🔗 你的網址</label>
+            <input 
+                type="url" 
+                id="url" 
+                placeholder="https://你的帳號.github.io/專案名/pressure-bubbles-direct.html"
+                value="">
+        </div>
+
+        <div class="input-group">
+            <label for="size">📐 QR Code 尺寸</label>
+            <select id="size">
+                <option value="200">小 (200x200)</option>
+                <option value="300" selected>中 (300x300)</option>
+                <option value="400">大 (400x400)</option>
+                <option value="500">特大 (500x500)</option>
+            </select>
+        </div>
+
+        <button class="btn" onclick="generateQR()">生成 QR Code</button>
+
+        <div id="qrcodeContainer">
+            <h3>✅ QR Code 已生成</h3>
+            <div id="qrcode"></div>
+            <a id="downloadLink" class="download-btn" download="pressure-bubbles-qrcode.png">
+                ⬇️ 下載 QR Code
+            </a>
+            <button class="download-btn" onclick="copyURL()" style="background: #667eea;">
+                📋 複製網址
+            </button>
+        </div>
+
+        <div class="info">
+            <strong>💡 使用提示：</strong><br>
+            1. 選擇版本（AR 或直接體驗）<br>
+            2. 輸入你的完整網址<br>
+            3. 選擇合適的尺寸<br>
+            4. 點擊生成並下載<br>
+            <br>
+            <strong>📱 建議尺寸：</strong><br>
+            • 手機掃描：200-300px<br>
+            • 印刷使用：400-500px<br>
+            • 海報展示：500px+
+        </div>
+    </div>
+
+    <script>
+        let currentQRCode = null;
+
+        // 預設網址
+        function usePreset(type) {
+            const urlInput = document.getElementById('url');
+            const baseURL = 'https://lygshipad-max.github.io/專案名/';
+            
+            // 移除之前的 active
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            if (type === 'ar') {
+                urlInput.value = baseURL + 'pressure-bubbles-ar.html';
+                event.target.classList.add('active');
+            } else if (type === 'direct') {
+                urlInput.value = baseURL + 'pressure-bubbles-direct.html';
+                event.target.classList.add('active');
+            }
+        }
+
+        // 生成 QR Code
+        function generateQR() {
+            const url = document.getElementById('url').value;
+            const size = document.getElementById('size').value;
+            const qrcodeContainer = document.getElementById('qrcodeContainer');
+            const qrcodeDiv = document.getElementById('qrcode');
+
+            if (!url) {
+                alert('請輸入網址！');
+                return;
+            }
+
+            // 驗證網址
+            try {
+                new URL(url);
+            } catch (e) {
+                alert('請輸入有效的網址！');
+                return;
+            }
+
+            // 清除舊的 QR Code
+            qrcodeDiv.innerHTML = '';
+
+            // 使用 Google Chart API 生成 QR Code
+            const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}`;
+            
+            const img = document.createElement('img');
+            img.src = qrURL;
+            img.alt = 'QR Code';
+            img.style.maxWidth = '100%';
+            img.style.height = 'auto';
+            
+            qrcodeDiv.appendChild(img);
+
+            // 設定下載連結
+            const downloadLink = document.getElementById('downloadLink');
+            downloadLink.href = qrURL;
+
+            // 顯示容器
+            qrcodeContainer.classList.add('show');
+
+            console.log('✓ QR Code 已生成');
+            console.log('URL:', url);
+            console.log('Size:', size);
+        }
+
+        // 複製網址
+        function copyURL() {
+            const url = document.getElementById('url').value;
+            
+            if (!url) {
+                alert('請先輸入網址！');
+                return;
+            }
+
+            // 複製到剪貼簿
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✓ 網址已複製到剪貼簿！');
+            }).catch(err => {
+                // 備用方法
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('✓ 網址已複製！');
+            });
+        }
+
+        // Enter 鍵生成
+        document.getElementById('url').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+
+        console.log('📱 QR Code 生成器已就緒');
+    </script>
+</body>
+</html>
