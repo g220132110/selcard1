@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>SEL 卡片 2 ─ 面具女孩</title>
+  <title>SEL 卡片 4 ─ 兩條路的十字路口</title>
 
   <!-- MindAR + ThreeJS -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
@@ -35,7 +35,7 @@
       transition: opacity 0.4s;
       z-index: 999;
       width: 80%;
-      max-width: 420px;
+      max-width: 430px;
       line-height: 1.5;
     }
     #messageBox { top: 10vh; }
@@ -46,29 +46,29 @@
 <body>
   <div id="mindar-container"></div>
 
-  <!-- 彈出文字 -->
+  <!-- 彈出訊息 -->
   <div id="messageBox"></div>
 
   <!-- 思考引導 -->
   <div id="questionBox">
     <b>思考引導：</b><br><br>
-    ● 你最常戴的「社交面具」是什麼？<br>
-    ● 有什麼原因讓你不敢展現真實情緒？<br>
-    ● 如果有一個安全的地方，你最想展現哪個真實的自己？
+    ● 最近讓你卡住的選擇是什麼？<br>
+    ● 做決定時，你最在乎的是誰的期待？<br>
+    ● 如果「不會失敗」，你其實最想走哪條路？
   </div>
 
   <script type="module">
     const messageBox = document.getElementById("messageBox");
     const questionBox = document.getElementById("questionBox");
 
-    // 面具女孩的 6 句話
-    const maskMessages = [
-      "開心面具：你笑得開心，但心裡其實很累。",
-      "冷漠面具：看起來不在意，其實是怕受傷。",
-      "被動面具：你說「都可以」，但其實也有想法。",
-      "害怕面具：你小心翼翼，只是因為很在乎。",
-      "堅強面具：你說沒事，但不是因為不痛。",
-      "敷衍面具：假裝隨便，是在保護那個更真實的自己。"
+    // 六種「選擇泡泡」訊息
+    const choiceMessages = [
+      "成績／學習：辛苦，但能慢慢累積你的實力。",
+      "手機娛樂：能讓你放鬆，但要小心被時間偷走。",
+      "人際關係：朋友會影響你，但你依然可以做自己的選擇。",
+      "價值／初心：你真正想守護的，不一定會被別人理解。",
+      "休息／舒適圈：舒服安全，但可能離夢想更遠。",
+      "夢想：也許不確定，但最貼近真正的你。"
     ];
 
     let clickCount = 0;
@@ -79,7 +79,7 @@
 
       setTimeout(() => {
         messageBox.style.opacity = 0;
-      }, 2800);
+      }, 2900);
     }
 
     function tryShowQuestions() {
@@ -88,43 +88,53 @@
       }
     }
 
-    // --- MindAR 初始化 ---
+    // 啟動 AR
     const startAR = async () => {
       const mindarThree = new window.MINDAR.IMAGE.MindARThree({
         container: document.querySelector("#mindar-container"),
-        imageTargetSrc: "targets-2.mind",
+        imageTargetSrc: "targets-4.mind",
       });
 
       const { renderer, scene, camera } = mindarThree;
 
       const anchor = mindarThree.addAnchor(0);
 
-      // 加 light
-      const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+      // Light
+      const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1.1);
       scene.add(light);
 
-      // 建立 6 顆「面具泡泡」
-      const bubbles = [];
-      const bubbleGeometry = new THREE.SphereGeometry(0.15, 32, 32);
-      const bubbleMaterial = new THREE.MeshStandardMaterial({
+      // 六種選擇泡泡
+      const choices = [];
+      const geometry = new THREE.SphereGeometry(0.18, 32, 32);
+
+      const baseMaterial = new THREE.MeshStandardMaterial({
         color: 0xffffff,
         transparent: true,
         opacity: 0.55,
       });
 
+      // 六顆泡泡位置（左右分散）
+      const positions = [
+        [-0.6,  0.2],   // 成績 / 書本
+        [ 0.6,  0.2],   // 手機
+        [-0.6, -0.2],   // 朋友
+        [ 0.6, -0.2],   // 價值
+        [-0.2,  0.0],   // 休息
+        [ 0.2,  0.0],   // 夢想
+      ];
+
       for (let i = 0; i < 6; i++) {
-        const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial.clone());
+        const bubble = new THREE.Mesh(geometry, baseMaterial.clone());
 
-        bubble.position.set(
-          (Math.random() - 0.5) * 1.2,
-          (Math.random() - 0.5) * 1.2,
-          0
-        );
+        bubble.position.set(positions[i][0], positions[i][1], 0);
+        bubble.userData.index = i;
 
-        bubble.userData.index = i; // 對應 message 陣列
+        // 上色區分
+        const colors = [0xffcc66, 0x66bbff, 0xff7777, 0x99dd99, 0xcccccc, 0xffee66];
+        bubble.material.color.setHex(colors[i]);
 
         anchor.group.add(bubble);
-        bubbles.push(bubble);
+        choices.push(bubble);
       }
 
       // 點擊偵測
@@ -136,25 +146,28 @@
         mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(bubbles);
+        const intersects = raycaster.intersectObjects(choices);
 
         if (intersects.length > 0) {
           const obj = intersects[0].object;
           const idx = obj.userData.index;
 
-          showMessage(maskMessages[idx]);
+          showMessage(choiceMessages[idx]);
 
-          obj.material.opacity = 0; // 消失動畫（簡易）
+          // 泡泡淡出
+          obj.material.opacity = 0;
+
           clickCount++;
           tryShowQuestions();
         }
       });
 
-      // --- 動畫 loop ---
+      // 動畫 loop
       await mindarThree.start();
       renderer.setAnimationLoop(() => {
-        bubbles.forEach((b, i) => {
-          b.position.y += Math.sin(Date.now() * 0.001 + i) * 0.0005;
+        // 飄動動畫
+        choices.forEach((c, i) => {
+          c.position.y += Math.sin(Date.now() * 0.001 + i) * 0.00045;
         });
 
         renderer.render(scene, camera);

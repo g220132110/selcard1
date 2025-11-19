@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>SEL 卡片 2 ─ 面具女孩</title>
+  <title>SEL 卡片 5 ─ 黑夜裡的小燈塔</title>
 
   <!-- MindAR + ThreeJS -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
@@ -30,12 +30,12 @@
       color: white;
       padding: 14px 22px;
       border-radius: 14px;
-      text-align: center;
       opacity: 0;
       transition: opacity 0.4s;
+      text-align: center;
       z-index: 999;
       width: 80%;
-      max-width: 420px;
+      max-width: 430px;
       line-height: 1.5;
     }
     #messageBox { top: 10vh; }
@@ -46,29 +46,29 @@
 <body>
   <div id="mindar-container"></div>
 
-  <!-- 彈出文字 -->
+  <!-- 彈出訊息 -->
   <div id="messageBox"></div>
 
   <!-- 思考引導 -->
   <div id="questionBox">
     <b>思考引導：</b><br><br>
-    ● 你最常戴的「社交面具」是什麼？<br>
-    ● 有什麼原因讓你不敢展現真實情緒？<br>
-    ● 如果有一個安全的地方，你最想展現哪個真實的自己？
+    ● 最近一次，你「差點說出口」但最後還是忍住的求助是什麼？<br>
+    ● 在你的生活中，誰可以成為你的「小燈塔」？<br>
+    ● 如果再遇到困難，你想對誰說第一句話？
   </div>
 
   <script type="module">
     const messageBox = document.getElementById("messageBox");
     const questionBox = document.getElementById("questionBox");
 
-    // 面具女孩的 6 句話
-    const maskMessages = [
-      "開心面具：你笑得開心，但心裡其實很累。",
-      "冷漠面具：看起來不在意，其實是怕受傷。",
-      "被動面具：你說「都可以」，但其實也有想法。",
-      "害怕面具：你小心翼翼，只是因為很在乎。",
-      "堅強面具：你說沒事，但不是因為不痛。",
-      "敷衍面具：假裝隨便，是在保護那個更真實的自己。"
+    // 六個支持泡泡
+    const supportMessages = [
+      "師長：他們其實願意聽你說，只是你還沒開口。",
+      "朋友：真正的朋友不會嫌你麻煩，他們會希望你過得好。",
+      "家人：他們可能不完美，但多半希望你平安。",
+      "諮商：尋求專業不是軟弱，而是成熟的選擇。",
+      "善意：世界上總有人願意伸手，只是你還沒遇見。",
+      "勇氣：當你願意說出第一句話，光就會開始亮起來。"
     ];
 
     let clickCount = 0;
@@ -76,10 +76,7 @@
     function showMessage(text) {
       messageBox.innerText = text;
       messageBox.style.opacity = 1;
-
-      setTimeout(() => {
-        messageBox.style.opacity = 0;
-      }, 2800);
+      setTimeout(() => { messageBox.style.opacity = 0; }, 2900);
     }
 
     function tryShowQuestions() {
@@ -88,40 +85,48 @@
       }
     }
 
-    // --- MindAR 初始化 ---
+    // 啟動 AR
     const startAR = async () => {
       const mindarThree = new window.MINDAR.IMAGE.MindARThree({
         container: document.querySelector("#mindar-container"),
-        imageTargetSrc: "targets-2.mind",
+        imageTargetSrc: "targets-5.mind",
       });
 
       const { renderer, scene, camera } = mindarThree;
-
       const anchor = mindarThree.addAnchor(0);
 
-      // 加 light
-      const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+      // Light
+      const light = new THREE.HemisphereLight(0xffffff, 0x222233, 1.1);
       scene.add(light);
 
-      // 建立 6 顆「面具泡泡」
+      // 六顆泡泡
       const bubbles = [];
-      const bubbleGeometry = new THREE.SphereGeometry(0.15, 32, 32);
-      const bubbleMaterial = new THREE.MeshStandardMaterial({
+      const geo = new THREE.SphereGeometry(0.18, 32, 32);
+      const baseMat = new THREE.MeshStandardMaterial({
         color: 0xffffff,
         transparent: true,
-        opacity: 0.55,
+        opacity: 0.55
       });
 
+      // 位置配置（以燈塔畫面為基準）
+      const positions = [
+        [-0.6,  0.25],  // 師長
+        [ 0.6,  0.25],  // 朋友
+        [-0.6, -0.15],  // 家人
+        [ 0.6, -0.15],  // 諮商
+        [-0.2,  0.05],  // 善意
+        [ 0.2,  0.05],  // 勇氣
+      ];
+
+      // 配色區分
+      const colors = [0xffee88, 0x88ccff, 0xffaaaa, 0xaaffaa, 0xffffff, 0xffdd66];
+
       for (let i = 0; i < 6; i++) {
-        const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial.clone());
+        const bubble = new THREE.Mesh(geo, baseMat.clone());
+        bubble.position.set(positions[i][0], positions[i][1], 0);
+        bubble.material.color.setHex(colors[i]);
 
-        bubble.position.set(
-          (Math.random() - 0.5) * 1.2,
-          (Math.random() - 0.5) * 1.2,
-          0
-        );
-
-        bubble.userData.index = i; // 對應 message 陣列
+        bubble.userData.index = i;
 
         anchor.group.add(bubble);
         bubbles.push(bubble);
@@ -136,21 +141,21 @@
         mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(bubbles);
+        const hit = raycaster.intersectObjects(bubbles);
 
-        if (intersects.length > 0) {
-          const obj = intersects[0].object;
+        if (hit.length > 0) {
+          const obj = hit[0].object;
           const idx = obj.userData.index;
 
-          showMessage(maskMessages[idx]);
+          showMessage(supportMessages[idx]);
+          obj.material.opacity = 0; // 淡出
 
-          obj.material.opacity = 0; // 消失動畫（簡易）
           clickCount++;
           tryShowQuestions();
         }
       });
 
-      // --- 動畫 loop ---
+      // 動畫
       await mindarThree.start();
       renderer.setAnimationLoop(() => {
         bubbles.forEach((b, i) => {
