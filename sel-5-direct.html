@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑夜裡的小燈塔 - 直接觀看</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family:'Microsoft JhengHei', Arial, sans-serif;
+            background:linear-gradient(135deg,#0d47a1 0%,#263238 100%);
+            min-height:100vh;
+            display:flex; flex-direction:column; align-items:center;
+            color:white;
+        }
+        .header {
+            width:100%; background:rgba(0,0,0,0.4); padding:20px;
+            box-shadow:0 2px 10px rgba(0,0,0,0.4);
+            text-align:center; position:relative;
+        }
+        .back-btn {
+            position:absolute; left:20px; top:50%; transform:translateY(-50%);
+            padding:10px 20px; background:#ffca28; color:#333;
+            border-radius:25px; text-decoration:none; font-weight:bold;
+            transition:all 0.3s ease;
+        }
+        .back-btn:hover { background:#ffc107; transform:translateY(-50%) scale(1.05); }
+        h1 { font-size:1.8rem; }
+        .subtitle { color:#eee; margin-top:5px; }
+
+        .main-container {
+            flex:1; width:100%; max-width:1000px; padding:20px;
+            display:flex; flex-direction:column; align-items:center;
+        }
+        .image-container {
+            position:relative; width:100%; max-width:600px; height:500px;
+            background:#00162b; border-radius:20px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.6);
+            margin:20px 0; overflow:hidden;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .illustration {
+            width:100%; height:100%; object-fit:contain; padding:20px;
+        }
+
+        .sea {
+            position:absolute; bottom:0; left:0; right:0;
+            height:35%; background:linear-gradient(to top,#01579b,#0277bd);
+            overflow:hidden;
+        }
+        .wave {
+            position:absolute; left:-50%; width:200%; height:50%;
+            background:radial-gradient(circle at 50% 0, rgba(255,255,255,0.3), transparent 60%);
+            opacity:0.5; animation:waveMove 6s linear infinite;
+        }
+        .wave.wave2 { top:-10%; opacity:0.3; animation-duration:8s; }
+
+        @keyframes waveMove {
+            from { transform:translateX(0); }
+            to   { transform:translateX(50%); }
+        }
+
+        .lighthouse {
+            position:absolute; bottom:20%; left:15%;
+            width:60px; height:140px; cursor:pointer;
+            display:flex; flex-direction:column; align-items:center;
+        }
+        .tower {
+            width:36px; height:100px; background:#eeeeee;
+            border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.7);
+        }
+        .top {
+            width:50px; height:24px; background:#ffca28;
+            border-radius:50px 50px 5px 5px;
+            box-shadow:0 0 15px rgba(255, 235, 59, 0.8);
+            transition:box-shadow 0.4s ease, background 0.4s ease;
+        }
+        .beam {
+            position:absolute; top:10%; left:28%;
+            width:0; height:0;
+            border-top:60px solid rgba(255, 241, 118, 0.0);
+            border-bottom:60px solid rgba(255, 241, 118, 0.0);
+            border-left:220px solid rgba(255, 241, 118, 0.2);
+            filter:blur(2px);
+            opacity:0;
+            transition:opacity 0.4s ease;
+        }
+        .lighthouse.on .top {
+            background:#fff59d;
+            box-shadow:0 0 25px rgba(255, 255, 141, 1);
+        }
+        .lighthouse.on ~ .beam {
+            opacity:1;
+        }
+
+        .start-btn {
+            background:linear-gradient(135deg,#ffca28,#ffb300);
+            color:#212121; border:none; padding:15px 40px;
+            border-radius:30px; font-size:1.1rem; font-weight:bold;
+            cursor:pointer; transition:all 0.3s ease;
+            box-shadow:0 5px 15px rgba(255,202,40,0.4);
+            margin:20px 0;
+        }
+        .start-btn:hover { transform:scale(1.05); box-shadow:0 10px 25px rgba(255,202,40,0.6); }
+
+        .message-popup {
+            position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+            background:#ffca28; color:#212121;
+            padding:20px 30px; border-radius:15px;
+            font-size:1.05rem; text-align:center;
+            opacity:0; pointer-events:none; transition:opacity 0.5s ease;
+            z-index:100; max-width:80%;
+            box-shadow:0 10px 30px rgba(0,0,0,0.6);
+        }
+        .message-popup.show { opacity:1; }
+
+        .question-section {
+            width:100%; max-width:600px;
+            background:rgba(0,0,0,0.7); color:white;
+            padding:30px; border-radius:20px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.6);
+            margin-top:20px; display:none;
+        }
+        .question-section.show { display:block; animation:slideIn 0.5s ease; }
+        .question-section h2 { margin-bottom:20px; font-size:1.5rem; }
+        .question-section ol { line-height:1.8; padding-left:20px; }
+        .question-section li { margin-bottom:15px; }
+
+        @keyframes slideIn {
+            from { opacity:0; transform:translateY(20px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        @media (max-width:768px){
+            .back-btn{ position:static; transform:none; margin-bottom:10px; }
+            h1{ font-size:1.5rem; margin-top:10px; }
+            .image-container{ height:400px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="back-btn">← 返回選單</a>
+        <h1>黑夜裡的小燈塔</h1>
+        <p class="subtitle">Seeking Help（求助與支持）</p>
+    </div>
+
+    <div class="main-container">
+        <button class="start-btn" id="startBtn">點亮你的小燈塔</button>
+
+        <div class="image-container">
+            <img src="sel-5.png" alt="黑夜裡的小燈塔" class="illustration">
+
+            <div class="sea">
+                <div class="wave wave1"></div>
+                <div class="wave wave2"></div>
+            </div>
+
+            <div class="lighthouse" id="lighthouse">
+                <div class="tower"></div>
+                <div class="top"></div>
+            </div>
+            <div class="beam" id="beam"></div>
+        </div>
+
+        <div class="message-popup" id="messagePopup"></div>
+
+        <div class="question-section" id="questionSection">
+            <h2>🤔 思考引導</h2>
+            <ol>
+                <li>最近一次你真的很想求助，卻沒有說出口，是什麼時候？發生了什麼事？</li>
+                <li>在你的生命中，有哪些人或地方，可以成為你的「小燈塔」？（師長、朋友、家人、諮商中心……）</li>
+                <li>如果下一次你再遇到困難，你願意試著對誰說出第一句話？那句話可能會是什麼？</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const lighthouse = document.getElementById('lighthouse');
+        const beam = document.getElementById('beam');
+        const messagePopup = document.getElementById('messagePopup');
+        const questionSection = document.getElementById('questionSection');
+        let clickedTimes = 0;
+        let started = false;
+
+        startBtn.addEventListener('click', () => {
+            startBtn.style.display = 'none';
+            started = true;
+            showMessage("試著點一下燈塔，把光打開。");
+        });
+
+        lighthouse.addEventListener('click', () => {
+            if (!started) return;
+            lighthouse.classList.toggle('on');
+            if (lighthouse.classList.contains('on')) {
+                showMessage("當你願意開口求助時，世界上會多出一盞為你亮的燈。");
+                clickedTimes++;
+            } else {
+                showMessage("燈會暫時熄滅，但只要你願意，它隨時可以再亮起來。");
+            }
+
+            if (clickedTimes >= 2) {
+                setTimeout(() => {
+                    questionSection.classList.add('show');
+                }, 800);
+            }
+        });
+
+        function showMessage(message) {
+            messagePopup.textContent = message;
+            messagePopup.classList.add('show');
+            setTimeout(() => {
+                messagePopup.classList.remove('show');
+            }, 3000);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('黑夜裡的小燈塔頁面載入完成');
+        });
+    </script>
+</body>
+</html>

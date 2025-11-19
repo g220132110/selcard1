@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情緒植物園 - 直接觀看</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #e0ffe4 0%, #b2f7ef 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            width: 100%;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 20px;
+            background: #43a047;
+            color: white;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background: #2e7d32;
+            transform: translateY(-50%) scale(1.05);
+        }
+        h1 { color: #333; font-size: 1.8rem; }
+        .subtitle { color: #666; margin-top: 5px; }
+
+        .main-container {
+            flex: 1;
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .image-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .illustration {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 20px;
+        }
+
+        .plant-row {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+        }
+        .plant {
+            width: 60px;
+            height: 120px;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            cursor: pointer;
+        }
+        .pot {
+            width: 60px;
+            height: 30px;
+            border-radius: 8px 8px 3px 3px;
+            background: #8d6e63;
+        }
+        .stem {
+            width: 14px;
+            border-radius: 999px;
+            background: #81c784;
+            transition: height 0.5s ease, background 0.5s ease;
+        }
+        .leaf {
+            width: 30px;
+            height: 15px;
+            border-radius: 30px;
+            background: #a5d6a7;
+            margin-bottom: 4px;
+        }
+        .plant-label {
+            font-size: 0.8rem;
+            margin-top: 4px;
+            color: #444;
+        }
+        .plant.angry  .stem { background:#e57373; }
+        .plant.happy  .stem { background:#fff176; }
+        .plant.sad    .stem { background:#90caf9; }
+        .plant.anxious.stem { background:#ffb74d; }
+        .plant.calm   .stem { background:#a5d6a7; }
+
+        .start-btn {
+            background: linear-gradient(135deg, #43a047, #66bb6a);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(67, 160, 71, 0.4);
+            margin: 20px 0;
+        }
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(67, 160, 71, 0.6);
+        }
+
+        .message-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #2e7d32;
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 1.05rem;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 100;
+            max-width: 80%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .message-popup.show { opacity: 1; }
+
+        .question-section {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            display: none;
+        }
+        .question-section.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+        .question-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .question-section ol {
+            color: #555;
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        .question-section li { margin-bottom: 15px; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 768px) {
+            .back-btn { position: static; transform: none; margin-bottom: 10px; }
+            h1 { font-size: 1.5rem; margin-top: 10px; }
+            .image-container { height: 400px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="back-btn">← 返回選單</a>
+        <h1>情緒植物園</h1>
+        <p class="subtitle">Emotion Regulation（情緒管理）</p>
+    </div>
+
+    <div class="main-container">
+        <button class="start-btn" id="startBtn">開始灌溉你的情緒花園</button>
+
+        <div class="image-container" id="imageContainer">
+            <img src="sel-3.png" alt="情緒植物園" class="illustration">
+
+            <div class="plant-row">
+                <div class="plant angry"   data-message="生氣的情緒需要出口：先離開現場、深呼吸。">
+                    <div class="pot"></div>
+                    <div class="stem" style="height:50px;"></div>
+                    <div class="leaf"></div>
+                    <div class="plant-label">怒</div>
+                </div>
+                <div class="plant happy"   data-message="開心的情緒，可以記下來，成為以後的能量。">
+                    <div class="pot"></div>
+                    <div class="stem" style="height:60px;"></div>
+                    <div class="leaf"></div>
+                    <div class="plant-label">喜</div>
+                </div>
+                <div class="plant sad"     data-message="悲傷的情緒，不需要隱藏，可以找人說說。">
+                    <div class="pot"></div>
+                    <div class="stem" style="height:45px;"></div>
+                    <div class="leaf"></div>
+                    <div class="plant-label">悲</div>
+                </div>
+                <div class="plant anxious" data-message="焦慮時，試著把事情寫下來，一件一件排順序。">
+                    <div class="pot"></div>
+                    <div class="stem" style="height:55px;"></div>
+                    <div class="leaf"></div>
+                    <div class="plant-label">焦</div>
+                </div>
+                <div class="plant calm"    data-message="平靜的時刻，是身心在充電，要好好珍惜。">
+                    <div class="pot"></div>
+                    <div class="stem" style="height:70px;"></div>
+                    <div class="leaf"></div>
+                    <div class="plant-label">靜</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-popup" id="messagePopup"></div>
+
+        <div class="question-section" id="questionSection">
+            <h2>🤔 思考引導</h2>
+            <ol>
+                <li>你今天的「情緒植物」中，哪一株長得最旺？為什麼？</li>
+                <li>回想一次你把情緒藏起來反而更累的經驗，當時發生了什麼？</li>
+                <li>有沒有一個你願意嘗試的方法，讓自己在情緒來時好過一點？例如深呼吸、寫下來、找朋友聊聊。</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const plants = document.querySelectorAll('.plant');
+        const messagePopup = document.getElementById('messagePopup');
+        const questionSection = document.getElementById('questionSection');
+        let clickedCount = 0;
+
+        plants.forEach(p => p.style.opacity = 0);
+
+        startBtn.addEventListener('click', () => {
+            startBtn.style.display = 'none';
+            plants.forEach((plant, index) => {
+                setTimeout(() => {
+                    plant.style.opacity = 1;
+                }, index * 400);
+            });
+        });
+
+        plants.forEach(plant => {
+            plant.addEventListener('click', () => {
+                const stem = plant.querySelector('.stem');
+                stem.style.height = parseInt(stem.style.height) + 15 + "px";
+
+                const msg = plant.getAttribute('data-message');
+                showMessage(msg);
+
+                if (!plant.classList.contains('clicked')) {
+                    plant.classList.add('clicked');
+                    clickedCount++;
+                    if (clickedCount >= 3) {
+                        setTimeout(() => {
+                            questionSection.classList.add('show');
+                        }, 800);
+                    }
+                }
+            });
+        });
+
+        function showMessage(message) {
+            messagePopup.textContent = message;
+            messagePopup.classList.add('show');
+            setTimeout(() => {
+                messagePopup.classList.remove('show');
+            }, 3000);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('情緒植物園頁面載入完成');
+        });
+    </script>
+</body>
+</html>
