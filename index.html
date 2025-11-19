@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEL 社會情緒學習 - 互動體驗</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .card-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 50%;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .card-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .card-theme {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .card-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            min-height: 60px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .btn-ar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-ar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-direct {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn-direct:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .instructions {
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .instructions h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+            color: #555;
+            line-height: 1.8;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .emoji {
+            font-size: 1.5rem;
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌟 SEL 社會情緒學習</h1>
+        <p class="subtitle">透過互動體驗，探索內心的情緒世界</p>
+        
+        <div class="cards-grid">
+            <!-- 卡片1：被看不見的壓力球 -->
+            <div class="card">
+                <div class="card-number">1</div>
+                <h3 class="card-title">被看不見的壓力球</h3>
+                <p class="card-theme">情緒覺察 (Recognizing Emotions)</p>
+                <p class="card-description">
+                    <span class="emoji">🎈</span>
+                    探索那些隱形的壓力，學習辨識並理解自己的情緒負擔。
+                </p>
+                <div class="button-group">
+                    <a href="sel-1-ar.html" class="btn btn-ar">AR 體驗</a>
+                    <a href="sel-1-direct.html" class="btn btn-direct">直接觀看</a>
+                </div>
+            </div>
+            
+            <!-- 卡片2：面具女孩 -->
+            <div class="card">
+                <div class="card-number">2</div>
+                <h3 class="card-title">面具女孩</h3>
+                <p class="card-theme">自我接納 (Self-acceptance)</p>
+                <p class="card-description">
+                    <span class="emoji">🎭</span>
+                    卸下社交面具，找回真實的自己，接納每一個面向的你。
+                </p>
+                <div class="button-group">
+                    <a href="sel-2-ar.html" class="btn btn-ar">AR 體驗</a>
+                    <a href="sel-2-direct.html" class="btn btn-direct">直接觀看</a>
+                </div>
+            </div>
+            
+            <!-- 卡片3：情緒植物園 -->
+            <div class="card">
+                <div class="card-number">3</div>
+                <h3 class="card-title">情緒植物園</h3>
+                <p class="card-theme">情緒管理 (Emotion Regulation)</p>
+                <p class="card-description">
+                    <span class="emoji">🌱</span>
+                    培養情緒的花園，學習照顧每一株代表不同情緒的植物。
+                </p>
+                <div class="button-group">
+                    <a href="sel-3-ar.html" class="btn btn-ar">AR 體驗</a>
+                    <a href="sel-3-direct.html" class="btn btn-direct">直接觀看</a>
+                </div>
+            </div>
+            
+            <!-- 卡片4：兩條路的十字路口 -->
+            <div class="card">
+                <div class="card-number">4</div>
+                <h3 class="card-title">兩條路的十字路口</h3>
+                <p class="card-theme">決策與價值 (Decision Making)</p>
+                <p class="card-description">
+                    <span class="emoji">🛤️</span>
+                    面對人生的選擇，探索內心真正重視的價值與方向。
+                </p>
+                <div class="button-group">
+                    <a href="sel-4-ar.html" class="btn btn-ar">AR 體驗</a>
+                    <a href="sel-4-direct.html" class="btn btn-direct">直接觀看</a>
+                </div>
+            </div>
+            
+            <!-- 卡片5：黑夜裡的小燈塔 -->
+            <div class="card">
+                <div class="card-number">5</div>
+                <h3 class="card-title">黑夜裡的小燈塔</h3>
+                <p class="card-theme">求助與支持 (Seeking Help)</p>
+                <p class="card-description">
+                    <span class="emoji">🏮</span>
+                    在黑暗中找尋光亮，學習求助並建立支持系統。
+                </p>
+                <div class="button-group">
+                    <a href="sel-5-ar.html" class="btn btn-ar">AR 體驗</a>
+                    <a href="sel-5-direct.html" class="btn btn-direct">直接觀看</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h2>📱 使用說明</h2>
+            <ol>
+                <li><strong>AR 體驗模式：</strong>需要使用手機相機掃描對應的插畫圖片，體驗擴增實境互動效果。</li>
+                <li><strong>直接觀看模式：</strong>不需掃描圖片，直接在網頁上觀看動畫效果（適合無法掃描或測試使用）。</li>
+                <li><strong>最佳體驗：</strong>建議使用手機瀏覽器，開啟相機權限，在光線充足的環境下使用。</li>
+                <li><strong>支援瀏覽器：</strong>Chrome、Safari、Edge 等現代瀏覽器。</li>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>被看不見的壓力球 - AR體驗</title>
+    
+    <!-- Mind AR -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.3/dist/mindar-image-three.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #mindar-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            color: #667eea;
+            font-weight: bold;
+            text-decoration: none;
+            pointer-events: all;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .scan-hint {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            text-align: center;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .scan-hint.hidden {
+            opacity: 0;
+        }
+        
+        .message-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            max-width: 80%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .message-popup.show {
+            opacity: 1;
+        }
+        
+        .question-box {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .question-box.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .question-box h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .question-box ol {
+            text-align: left;
+            color: #555;
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        
+        .question-box li {
+            margin-bottom: 10px;
+        }
+        
+        .bubble-text {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 50;
+        }
+        
+        .bubble-text.show {
+            opacity: 1;
+        }
+        
+        .qr-fallback {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 10px;
+            pointer-events: all;
+            z-index: 100;
+            display: none;
+        }
+        
+        .qr-fallback.show {
+            display: block;
+        }
+        
+        .qr-fallback a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #667eea;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="mindar-container"></div>
+        
+        <div class="ui-overlay">
+            <a href="index.html" class="back-btn">← 返回選單</a>
+            
+            <div class="scan-hint" id="scanHint">
+                📱 請將相機對準「被看不見的壓力球」插畫圖片
+            </div>
+            
+            <div class="message-popup" id="messagePopup"></div>
+            
+            <div class="question-box" id="questionBox">
+                <h3>🤔 思考引導</h3>
+                <ol>
+                    <li>你現在生活中最大的三顆「壓力球」是什麼？</li>
+                    <li>哪些其實不是你的責任，卻被你扛起來了？</li>
+                    <li>有沒有一件你想「放下」的壓力？</li>
+                </ol>
+            </div>
+            
+            <div class="bubble-text" id="bubbleText"></div>
+            
+            <div class="qr-fallback" id="qrFallback">
+                <p>掃描有困難嗎？</p>
+                <a href="sel-1-direct.html">直接觀看動畫 →</a>
+            </div>
+        </div>
+        
+        <div id="loading">
+            <div class="loader"></div>
+            <p>載入中...</p>
+        </div>
+    </div>
+    
+    <script>
+        // 壓力訊息陣列
+        const pressureMessages = [
+            "這是課業壓力，不是你不夠努力",
+            "這是同儕壓力，你不需要討好所有人",
+            "這是期待壓力，你可以有自己的步調",
+            "這是完美主義，允許自己有缺點也沒關係",
+            "這是時間壓力，深呼吸，一次做一件事",
+            "這是比較壓力，你的價值不需要透過比較來證明"
+        ];
+        
+        let bubbles = [];
+        let scene, camera, renderer;
+        let mindarThree;
+        let anchor;
+        let bubbleGroup;
+        let clock;
+        let isTracking = false;
+        
+        async function initAR() {
+            // 初始化 MindAR
+            mindarThree = new window.MINDAR.IMAGE.MindARThree({
+                container: document.querySelector("#mindar-container"),
+                imageTargetSrc: 'targets-1.mind', // 需要您上傳對應的 .mind 文件
+                maxTrack: 1,
+                uiLoading: false,
+                uiScanning: false,
+                uiError: false
+            });
+            
+            const {renderer, scene, camera} = mindarThree;
+            
+            // 設置燈光
+            const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+            scene.add(light);
+            
+            // 創建錨點
+            anchor = mindarThree.addAnchor(0);
+            bubbleGroup = new THREE.Group();
+            anchor.group.add(bubbleGroup);
+            
+            // 創建氣泡
+            createBubbles();
+            
+            // 設置時鐘
+            clock = new THREE.Clock();
+            
+            // 開始AR
+            await mindarThree.start();
+            
+            // 隱藏載入畫面
+            document.getElementById('loading').style.display = 'none';
+            
+            // 顯示掃描提示
+            setTimeout(() => {
+                document.getElementById('qrFallback').classList.add('show');
+            }, 5000);
+            
+            // 設置追蹤事件
+            anchor.onTargetFound = () => {
+                console.log("目標找到");
+                isTracking = true;
+                document.getElementById('scanHint').classList.add('hidden');
+                startBubbleAnimation();
+            };
+            
+            anchor.onTargetLost = () => {
+                console.log("目標丟失");
+                isTracking = false;
+                document.getElementById('scanHint').classList.remove('hidden');
+            };
+            
+            renderer.setAnimationLoop(() => {
+                if (isTracking) {
+                    animateBubbles();
+                }
+                renderer.render(scene, camera);
+            });
+        }
+        
+        function createBubbles() {
+            const bubbleGeometry = new THREE.SphereGeometry(0.1, 32, 32);
+            
+            for (let i = 0; i < 6; i++) {
+                const bubbleMaterial = new THREE.MeshPhongMaterial({
+                    color: new THREE.Color().setHSL(Math.random() * 0.3 + 0.5, 0.5, 0.7),
+                    transparent: true,
+                    opacity: 0.6,
+                    shininess: 100
+                });
+                
+                const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial);
+                
+                // 隨機位置
+                bubble.position.x = (Math.random() - 0.5) * 2;
+                bubble.position.y = (Math.random() - 0.5) * 2;
+                bubble.position.z = Math.random() * 0.5;
+                
+                // 儲存初始位置和動畫參數
+                bubble.userData = {
+                    initialPos: bubble.position.clone(),
+                    floatSpeed: Math.random() * 0.5 + 0.5,
+                    floatRange: Math.random() * 0.2 + 0.1,
+                    message: pressureMessages[i],
+                    clicked: false
+                };
+                
+                bubbleGroup.add(bubble);
+                bubbles.push(bubble);
+            }
+        }
+        
+        function startBubbleAnimation() {
+            // 氣泡慢慢靠近的動畫
+            bubbles.forEach((bubble, index) => {
+                setTimeout(() => {
+                    animateBubbleApproach(bubble);
+                }, index * 500);
+            });
+        }
+        
+        function animateBubbleApproach(bubble) {
+            const targetZ = -0.5;
+            const duration = 2000;
+            const startZ = bubble.position.z;
+            const startTime = Date.now();
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                bubble.position.z = startZ + (targetZ - startZ) * progress;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            animate();
+        }
+        
+        function animateBubbles() {
+            const time = clock.getElapsedTime();
+            
+            bubbles.forEach((bubble) => {
+                if (!bubble.userData.clicked) {
+                    // 漂浮動畫
+                    bubble.position.y = bubble.userData.initialPos.y + 
+                        Math.sin(time * bubble.userData.floatSpeed) * bubble.userData.floatRange;
+                    
+                    // 輕微旋轉
+                    bubble.rotation.y = time * 0.5;
+                }
+            });
+        }
+        
+        // Raycaster 處理點擊
+        function setupInteraction() {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            
+            document.addEventListener('click', (event) => {
+                if (!isTracking) return;
+                
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                
+                const intersects = raycaster.intersectObjects(bubbles);
+                
+                if (intersects.length > 0) {
+                    const bubble = intersects[0].object;
+                    
+                    if (!bubble.userData.clicked) {
+                        popBubble(bubble);
+                    }
+                }
+            });
+        }
+        
+        function popBubble(bubble) {
+            bubble.userData.clicked = true;
+            
+            // 顯示訊息
+            const popup = document.getElementById('messagePopup');
+            popup.textContent = bubble.userData.message;
+            popup.classList.add('show');
+            
+            // 氣泡破裂動畫
+            const scale = bubble.scale.x;
+            const duration = 300;
+            const startTime = Date.now();
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const currentScale = scale * (1 + progress * 0.5);
+                bubble.scale.set(currentScale, currentScale, currentScale);
+                bubble.material.opacity = 0.6 * (1 - progress);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    bubbleGroup.remove(bubble);
+                    
+                    // 檢查是否所有氣泡都破了
+                    const remainingBubbles = bubbles.filter(b => !b.userData.clicked);
+                    if (remainingBubbles.length === 0) {
+                        setTimeout(showFinalQuestion, 1000);
+                    }
+                }
+            }
+            
+            animate();
+            
+            // 隱藏訊息
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 3000);
+        }
+        
+        function showFinalQuestion() {
+            const popup = document.getElementById('messagePopup');
+            popup.textContent = "你的壓力來源是什麼？";
+            popup.classList.add('show');
+            
+            setTimeout(() => {
+                popup.classList.remove('show');
+                document.getElementById('questionBox').classList.add('show');
+            }, 3000);
+        }
+        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initAR();
+                setupInteraction();
+            } catch (error) {
+                console.error('AR 初始化失敗:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<p style="color: red;">AR 載入失敗<br>請確認相機權限已開啟</p>' +
+                    '<a href="sel-1-direct.html" style="color: #667eea; margin-top: 20px; display: inline-block;">直接觀看動畫 →</a>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>面具女孩 - 直接觀看</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .header {
+            width: 100%;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+        
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: #764ba2;
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .main-container {
+            flex: 1;
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .image-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .illustration {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 20px;
+        }
+        
+        /* 面具樣式 */
+        .mask-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            opacity: 0.9;
+            transition: all 1s ease;
+            cursor: pointer;
+        }
+        
+        .mask-overlay.floating {
+            animation: floatUp 2s ease-out forwards;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.9;
+            }
+            100% {
+                transform: translate(-50%, -200%) scale(1.2);
+                opacity: 0;
+            }
+        }
+        
+        /* 面具選項 */
+        .masks-grid {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+        
+        .masks-grid.show {
+            display: grid;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .mask-option {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .mask-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .mask-emoji {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .mask-label {
+            color: #555;
+            font-weight: bold;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            margin: 20px 0;
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .message-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 100;
+            max-width: 80%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .message-popup.show {
+            opacity: 1;
+        }
+        
+        .question-section {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .question-section.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .question-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .question-section ol {
+            color: #555;
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        
+        .question-section li {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="back-btn">← 返回選單</a>
+        <h1>面具女孩</h1>
+        <p class="subtitle">自我接納 (Self-acceptance)</p>
+    </div>
+    
+    <div class="main-container">
+        <button class="start-btn" id="startBtn">開始體驗</button>
+        
+        <div class="image-container" id="imageContainer">
+            <!-- 這裡應該放置您的插畫圖片 sel-2.png -->
+            <img src="sel-2.png" alt="面具女孩" class="illustration">
+            
+            <!-- 面具覆蓋層 -->
+            <div class="mask-overlay" id="maskOverlay">
+                <div style="font-size: 100px;">🎭</div>
+            </div>
+        </div>
+        
+        <div class="message-popup" id="messagePopup"></div>
+        
+        <!-- 面具選項 -->
+        <div class="masks-grid" id="masksGrid">
+            <div class="mask-option" data-mask="開心">
+                <div class="mask-emoji">😊</div>
+                <div class="mask-label">開心</div>
+            </div>
+            <div class="mask-option" data-mask="冷漠">
+                <div class="mask-emoji">😐</div>
+                <div class="mask-label">冷漠</div>
+            </div>
+            <div class="mask-option" data-mask="被動">
+                <div class="mask-emoji">😔</div>
+                <div class="mask-label">被動</div>
+            </div>
+            <div class="mask-option" data-mask="害怕">
+                <div class="mask-emoji">😨</div>
+                <div class="mask-label">害怕</div>
+            </div>
+            <div class="mask-option" data-mask="堅強">
+                <div class="mask-emoji">💪</div>
+                <div class="mask-label">堅強</div>
+            </div>
+            <div class="mask-option" data-mask="敷衍">
+                <div class="mask-emoji">🙄</div>
+                <div class="mask-label">敷衍</div>
+            </div>
+        </div>
+        
+        <div class="question-section" id="questionSection">
+            <h2>🤔 思考引導</h2>
+            <ol>
+                <li>你最常戴的「社交面具」是什麼？為什麼選擇這個面具？</li>
+                <li>有什麼原因讓你不敢展現真實的情緒？是擔心被評判嗎？</li>
+                <li>如果你能安全地卸下面具，你最想表現什麼樣的自己？</li>
+            </ol>
+        </div>
+    </div>
+    
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const maskOverlay = document.getElementById('maskOverlay');
+        const messagePopup = document.getElementById('messagePopup');
+        const masksGrid = document.getElementById('masksGrid');
+        const questionSection = document.getElementById('questionSection');
+        const maskOptions = document.querySelectorAll('.mask-option');
+        
+        // 開始按鈕點擊事件
+        startBtn.addEventListener('click', () => {
+            startAnimation();
+            startBtn.style.display = 'none';
+        });
+        
+        function startAnimation() {
+            // 顯示初始訊息
+            showMessage("點擊面具，看看背後的真實");
+            
+            // 面具點擊事件
+            maskOverlay.addEventListener('click', floatMask);
+        }
+        
+        function floatMask() {
+            maskOverlay.classList.add('floating');
+            
+            setTimeout(() => {
+                showMessage("你今天戴上的是哪一種面具？");
+                
+                setTimeout(() => {
+                    messagePopup.classList.remove('show');
+                    masksGrid.classList.add('show');
+                }, 3000);
+            }, 1000);
+        }
+        
+        // 面具選項點擊事件
+        maskOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const maskType = option.getAttribute('data-mask');
+                showMessage(`你選擇了「${maskType}」面具`);
+                
+                setTimeout(() => {
+                    messagePopup.classList.remove('show');
+                    questionSection.classList.add('show');
+                }, 3000);
+            });
+        });
+        
+        function showMessage(message) {
+            messagePopup.textContent = message;
+            messagePopup.classList.add('show');
+        }
+    </script>
+</body>
+</html>
