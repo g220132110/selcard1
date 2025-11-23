@@ -1,167 +1,529 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>SEL 卡片 2 ─ 面具女孩</title>
-
-  <!-- MindAR + ThreeJS -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.3/dist/mindar-image-three.prod.js"></script>
-
-  <style>
-    body, html {
-      padding: 0;
-      margin: 0;
-      overflow: hidden;
-      font-family: "Microsoft JhengHei", Arial, sans-serif;
-    }
-    #mindar-container {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-    }
-    #messageBox, #questionBox {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.65);
-      color: white;
-      padding: 14px 22px;
-      border-radius: 14px;
-      text-align: center;
-      opacity: 0;
-      transition: opacity 0.4s;
-      z-index: 999;
-      width: 80%;
-      max-width: 420px;
-      line-height: 1.5;
-    }
-    #messageBox { top: 10vh; }
-    #questionBox { bottom: 8vh; font-size: 0.95rem; }
-  </style>
-</head>
-
-<body>
-  <div id="mindar-container"></div>
-
-  <!-- 彈出文字 -->
-  <div id="messageBox"></div>
-
-  <!-- 思考引導 -->
-  <div id="questionBox">
-    <b>思考引導：</b><br><br>
-    ● 你最常戴的「社交面具」是什麼？<br>
-    ● 有什麼原因讓你不敢展現真實情緒？<br>
-    ● 如果有一個安全的地方，你最想展現哪個真實的自己？
-  </div>
-
-  <script type="module">
-    const messageBox = document.getElementById("messageBox");
-    const questionBox = document.getElementById("questionBox");
-
-    // 面具女孩的 6 句話
-    const maskMessages = [
-      "開心面具：你笑得開心，但心裡其實很累。",
-      "冷漠面具：看起來不在意，其實是怕受傷。",
-      "被動面具：你說「都可以」，但其實也有想法。",
-      "害怕面具：你小心翼翼，只是因為很在乎。",
-      "堅強面具：你說沒事，但不是因為不痛。",
-      "敷衍面具：假裝隨便，是在保護那個更真實的自己。"
-    ];
-
-    let clickCount = 0;
-
-    function showMessage(text) {
-      messageBox.innerText = text;
-      messageBox.style.opacity = 1;
-
-      setTimeout(() => {
-        messageBox.style.opacity = 0;
-      }, 2800);
-    }
-
-    function tryShowQuestions() {
-      if (clickCount >= 3) {
-        questionBox.style.opacity = 1;
-      }
-    }
-
-    // --- MindAR 初始化 ---
-    const startAR = async () => {
-      const mindarThree = new window.MINDAR.IMAGE.MindARThree({
-        container: document.querySelector("#mindar-container"),
-        imageTargetSrc: "targets-2.mind",
-      });
-
-      const { renderer, scene, camera } = mindarThree;
-
-      const anchor = mindarThree.addAnchor(0);
-
-      // 加 light
-      const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-      scene.add(light);
-
-      // 建立 6 顆「面具泡泡」
-      const bubbles = [];
-      const bubbleGeometry = new THREE.SphereGeometry(0.15, 32, 32);
-      const bubbleMaterial = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.55,
-      });
-
-      for (let i = 0; i < 6; i++) {
-        const bubble = new THREE.Mesh(bubbleGeometry, bubbleMaterial.clone());
-
-        bubble.position.set(
-          (Math.random() - 0.5) * 1.2,
-          (Math.random() - 0.5) * 1.2,
-          0
-        );
-
-        bubble.userData.index = i; // 對應 message 陣列
-
-        anchor.group.add(bubble);
-        bubbles.push(bubble);
-      }
-
-      // 點擊偵測
-      const raycaster = new THREE.Raycaster();
-      const mouse = new THREE.Vector2();
-
-      window.addEventListener("click", (e) => {
-        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(bubbles);
-
-        if (intersects.length > 0) {
-          const obj = intersects[0].object;
-          const idx = obj.userData.index;
-
-          showMessage(maskMessages[idx]);
-
-          obj.material.opacity = 0; // 消失動畫（簡易）
-          clickCount++;
-          tryShowQuestions();
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>面具女孩 - AR體驗</title>
+    
+    <!-- Mind AR 1.1.3 -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.3/dist/mindar-image-three.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      });
-
-      // --- 動畫 loop ---
-      await mindarThree.start();
-      renderer.setAnimationLoop(() => {
-        bubbles.forEach((b, i) => {
-          b.position.y += Math.sin(Date.now() * 0.001 + i) * 0.0005;
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #mindar-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            color: #667eea;
+            font-weight: bold;
+            text-decoration: none;
+            pointer-events: all;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .scan-hint {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            text-align: center;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .scan-hint.hidden {
+            opacity: 0;
+        }
+        
+        .message-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ffecd2, #fcb69f);
+            color: #333;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            max-width: 80%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .message-popup.show {
+            opacity: 1;
+        }
+        
+        .masks-container {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 90%;
+            pointer-events: all;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .masks-container.show {
+            display: grid;
+        }
+        
+        .mask-option {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .mask-option:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .mask-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .mask-label {
+            color: #555;
+            font-size: 0.9rem;
+        }
+        
+        .question-box {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .question-box.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .question-box h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .question-box ol {
+            text-align: left;
+            color: #555;
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        
+        .question-box li {
+            margin-bottom: 10px;
+        }
+        
+        .qr-fallback {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 10px;
+            pointer-events: all;
+            z-index: 100;
+            display: none;
+        }
+        
+        .qr-fallback.show {
+            display: block;
+        }
+        
+        .qr-fallback a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #667eea;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .masks-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .mask-emoji {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="mindar-container"></div>
+        
+        <div class="ui-overlay">
+            <a href="index.html" class="back-btn">← 返回選單</a>
+            
+            <div class="scan-hint" id="scanHint">
+                📱 請將相機對準「面具女孩」插畫圖片
+            </div>
+            
+            <div class="message-popup" id="messagePopup"></div>
+            
+            <div class="masks-container" id="masksContainer">
+                <div class="mask-option" data-mask="開心" data-message="開心面具 - 總是微笑，但真的快樂嗎？">
+                    <div class="mask-emoji">😊</div>
+                    <div class="mask-label">開心</div>
+                </div>
+                <div class="mask-option" data-mask="冷漠" data-message="冷漠面具 - 不想被傷害，所以保持距離">
+                    <div class="mask-emoji">😐</div>
+                    <div class="mask-label">冷漠</div>
+                </div>
+                <div class="mask-option" data-mask="被動" data-message="被動面具 - 害怕衝突，選擇退讓">
+                    <div class="mask-emoji">😔</div>
+                    <div class="mask-label">被動</div>
+                </div>
+                <div class="mask-option" data-mask="害怕" data-message="害怕面具 - 恐懼被看見真實的自己">
+                    <div class="mask-emoji">😨</div>
+                    <div class="mask-label">害怕</div>
+                </div>
+                <div class="mask-option" data-mask="堅強" data-message="堅強面具 - 不能示弱，必須撐住">
+                    <div class="mask-emoji">💪</div>
+                    <div class="mask-label">堅強</div>
+                </div>
+                <div class="mask-option" data-mask="敷衍" data-message="敷衍面具 - 應付了事，避免深入">
+                    <div class="mask-emoji">🙄</div>
+                    <div class="mask-label">敷衍</div>
+                </div>
+            </div>
+            
+            <div class="question-box" id="questionBox">
+                <h3>🤔 思考引導</h3>
+                <ol>
+                    <li>你最常戴的「社交面具」是什麼？</li>
+                    <li>有什麼原因讓你不敢展現真實的情緒？</li>
+                    <li>如果你能安全地卸下面具，你最想表現什麼？</li>
+                </ol>
+            </div>
+            
+            <div class="qr-fallback" id="qrFallback">
+                <p>掃描有困難嗎？</p>
+                <a href="sel-2-direct.html">直接觀看動畫 →</a>
+            </div>
+        </div>
+        
+        <div id="loading">
+            <div class="loader"></div>
+            <p>載入中...</p>
+        </div>
+    </div>
+    
+    <script>
+        let scene, camera, renderer;
+        let mindarThree;
+        let anchor;
+        let maskModel;
+        let clock;
+        let isTracking = false;
+        let maskFloating = false;
+        
+        async function initAR() {
+            // 初始化 MindAR
+            mindarThree = new window.MINDAR.IMAGE.MindARThree({
+                container: document.querySelector("#mindar-container"),
+                imageTargetSrc: 'targets-2.mind', // 需要您上傳對應的 .mind 文件
+                maxTrack: 1,
+                uiLoading: false,
+                uiScanning: false,
+                uiError: false
+            });
+            
+            const {renderer, scene, camera} = mindarThree;
+            
+            // 設置燈光
+            const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+            scene.add(light);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // 創建錨點
+            anchor = mindarThree.addAnchor(0);
+            
+            // 創建面具模型（使用簡單的圓盤代表面具）
+            const maskGeometry = new THREE.CircleGeometry(0.3, 32);
+            const maskMaterial = new THREE.MeshPhongMaterial({
+                color: 0xffecd2,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.9
+            });
+            maskModel = new THREE.Mesh(maskGeometry, maskMaterial);
+            
+            // 添加面具表情（使用文字紋理）
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const context = canvas.getContext('2d');
+            context.fillStyle = '#333';
+            context.font = 'bold 120px Arial';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText('🎭', 128, 128);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const emojiMaterial = new THREE.MeshBasicMaterial({
+                map: texture,
+                transparent: true
+            });
+            const emojiMesh = new THREE.Mesh(
+                new THREE.PlaneGeometry(0.25, 0.25),
+                emojiMaterial
+            );
+            emojiMesh.position.z = 0.01;
+            maskModel.add(emojiMesh);
+            
+            anchor.group.add(maskModel);
+            
+            // 設置時鐘
+            clock = new THREE.Clock();
+            
+            // 開始AR
+            await mindarThree.start();
+            
+            // 隱藏載入畫面
+            document.getElementById('loading').style.display = 'none';
+            
+            // 顯示掃描提示
+            setTimeout(() => {
+                document.getElementById('qrFallback').classList.add('show');
+            }, 5000);
+            
+            // 設置追蹤事件
+            anchor.onTargetFound = () => {
+                console.log("目標找到");
+                isTracking = true;
+                document.getElementById('scanHint').classList.add('hidden');
+                
+                // 延遲後開始浮起動畫
+                setTimeout(() => {
+                    startMaskAnimation();
+                }, 1000);
+            };
+            
+            anchor.onTargetLost = () => {
+                console.log("目標丟失");
+                isTracking = false;
+                document.getElementById('scanHint').classList.remove('hidden');
+            };
+            
+            renderer.setAnimationLoop(() => {
+                if (isTracking) {
+                    animateMask();
+                }
+                renderer.render(scene, camera);
+            });
+        }
+        
+        function startMaskAnimation() {
+            if (maskFloating) return;
+            maskFloating = true;
+            
+            // 顯示初始訊息
+            const popup = document.getElementById('messagePopup');
+            popup.textContent = "你今天戴上的是哪一種面具？";
+            popup.classList.add('show');
+            
+            // 面具浮起動畫
+            const startPos = maskModel.position.y;
+            const targetPos = startPos + 0.5;
+            const duration = 2000;
+            const startTime = Date.now();
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 緩動函數
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                
+                maskModel.position.y = startPos + (targetPos - startPos) * easeOut;
+                maskModel.rotation.z = Math.sin(easeOut * Math.PI) * 0.3;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // 動畫完成後顯示面具選項
+                    setTimeout(() => {
+                        popup.classList.remove('show');
+                        document.getElementById('masksContainer').classList.add('show');
+                    }, 1500);
+                }
+            }
+            
+            animate();
+        }
+        
+        function animateMask() {
+            if (!maskFloating) return;
+            
+            const time = clock.getElapsedTime();
+            
+            // 輕微漂浮動畫
+            maskModel.rotation.y = Math.sin(time * 0.5) * 0.1;
+            
+            // 呼吸效果
+            const scale = 1 + Math.sin(time * 2) * 0.05;
+            maskModel.scale.set(scale, scale, scale);
+        }
+        
+        // 設置面具選項點擊事件
+        function setupMaskOptions() {
+            const maskOptions = document.querySelectorAll('.mask-option');
+            
+            maskOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const maskType = option.getAttribute('data-mask');
+                    const message = option.getAttribute('data-message');
+                    
+                    // 隱藏面具選項
+                    document.getElementById('masksContainer').classList.remove('show');
+                    
+                    // 顯示選擇的面具訊息
+                    const popup = document.getElementById('messagePopup');
+                    popup.textContent = message;
+                    popup.classList.add('show');
+                    
+                    // 面具消失動畫
+                    if (maskModel) {
+                        const fadeOutDuration = 1000;
+                        const startTime = Date.now();
+                        const startOpacity = maskModel.material.opacity;
+                        
+                        function fadeOut() {
+                            const elapsed = Date.now() - startTime;
+                            const progress = Math.min(elapsed / fadeOutDuration, 1);
+                            
+                            maskModel.material.opacity = startOpacity * (1 - progress);
+                            maskModel.scale.setScalar(1 + progress * 0.5);
+                            
+                            if (progress < 1) {
+                                requestAnimationFrame(fadeOut);
+                            }
+                        }
+                        
+                        fadeOut();
+                    }
+                    
+                    // 延遲後顯示問題
+                    setTimeout(() => {
+                        popup.classList.remove('show');
+                        document.getElementById('questionBox').classList.add('show');
+                    }, 3000);
+                });
+            });
+        }
+        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initAR();
+                setupMaskOptions();
+            } catch (error) {
+                console.error('AR 初始化失敗:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<p style="color: red;">AR 載入失敗<br>請確認相機權限已開啟</p>' +
+                    '<a href="sel-2-direct.html" style="color: #667eea; margin-top: 20px; display: inline-block;">直接觀看動畫 →</a>';
+            }
         });
-
-        renderer.render(scene, camera);
-      });
-    };
-
-    startAR();
-  </script>
+    </script>
 </body>
 </html>

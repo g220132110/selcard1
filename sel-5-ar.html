@@ -1,172 +1,673 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <title>SEL 卡片 5 ─ 黑夜裡的小燈塔</title>
-
-  <!-- MindAR + ThreeJS -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.3/dist/mindar-image-three.prod.js"></script>
-
-  <style>
-    body, html {
-      padding: 0;
-      margin: 0;
-      overflow: hidden;
-      font-family: "Microsoft JhengHei", Arial, sans-serif;
-    }
-    #mindar-container {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-    }
-    #messageBox, #questionBox {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.65);
-      color: white;
-      padding: 14px 22px;
-      border-radius: 14px;
-      opacity: 0;
-      transition: opacity 0.4s;
-      text-align: center;
-      z-index: 999;
-      width: 80%;
-      max-width: 430px;
-      line-height: 1.5;
-    }
-    #messageBox { top: 10vh; }
-    #questionBox { bottom: 8vh; font-size: 0.95rem; }
-  </style>
-</head>
-
-<body>
-  <div id="mindar-container"></div>
-
-  <!-- 彈出訊息 -->
-  <div id="messageBox"></div>
-
-  <!-- 思考引導 -->
-  <div id="questionBox">
-    <b>思考引導：</b><br><br>
-    ● 最近一次，你「差點說出口」但最後還是忍住的求助是什麼？<br>
-    ● 在你的生活中，誰可以成為你的「小燈塔」？<br>
-    ● 如果再遇到困難，你想對誰說第一句話？
-  </div>
-
-  <script type="module">
-    const messageBox = document.getElementById("messageBox");
-    const questionBox = document.getElementById("questionBox");
-
-    // 六個支持泡泡
-    const supportMessages = [
-      "師長：他們其實願意聽你說，只是你還沒開口。",
-      "朋友：真正的朋友不會嫌你麻煩，他們會希望你過得好。",
-      "家人：他們可能不完美，但多半希望你平安。",
-      "諮商：尋求專業不是軟弱，而是成熟的選擇。",
-      "善意：世界上總有人願意伸手，只是你還沒遇見。",
-      "勇氣：當你願意說出第一句話，光就會開始亮起來。"
-    ];
-
-    let clickCount = 0;
-
-    function showMessage(text) {
-      messageBox.innerText = text;
-      messageBox.style.opacity = 1;
-      setTimeout(() => { messageBox.style.opacity = 0; }, 2900);
-    }
-
-    function tryShowQuestions() {
-      if (clickCount >= 3) {
-        questionBox.style.opacity = 1;
-      }
-    }
-
-    // 啟動 AR
-    const startAR = async () => {
-      const mindarThree = new window.MINDAR.IMAGE.MindARThree({
-        container: document.querySelector("#mindar-container"),
-        imageTargetSrc: "targets-5.mind",
-      });
-
-      const { renderer, scene, camera } = mindarThree;
-      const anchor = mindarThree.addAnchor(0);
-
-      // Light
-      const light = new THREE.HemisphereLight(0xffffff, 0x222233, 1.1);
-      scene.add(light);
-
-      // 六顆泡泡
-      const bubbles = [];
-      const geo = new THREE.SphereGeometry(0.18, 32, 32);
-      const baseMat = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.55
-      });
-
-      // 位置配置（以燈塔畫面為基準）
-      const positions = [
-        [-0.6,  0.25],  // 師長
-        [ 0.6,  0.25],  // 朋友
-        [-0.6, -0.15],  // 家人
-        [ 0.6, -0.15],  // 諮商
-        [-0.2,  0.05],  // 善意
-        [ 0.2,  0.05],  // 勇氣
-      ];
-
-      // 配色區分
-      const colors = [0xffee88, 0x88ccff, 0xffaaaa, 0xaaffaa, 0xffffff, 0xffdd66];
-
-      for (let i = 0; i < 6; i++) {
-        const bubble = new THREE.Mesh(geo, baseMat.clone());
-        bubble.position.set(positions[i][0], positions[i][1], 0);
-        bubble.material.color.setHex(colors[i]);
-
-        bubble.userData.index = i;
-
-        anchor.group.add(bubble);
-        bubbles.push(bubble);
-      }
-
-      // 點擊偵測
-      const raycaster = new THREE.Raycaster();
-      const mouse = new THREE.Vector2();
-
-      window.addEventListener("click", (e) => {
-        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, camera);
-        const hit = raycaster.intersectObjects(bubbles);
-
-        if (hit.length > 0) {
-          const obj = hit[0].object;
-          const idx = obj.userData.index;
-
-          showMessage(supportMessages[idx]);
-          obj.material.opacity = 0; // 淡出
-
-          clickCount++;
-          tryShowQuestions();
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑夜裡的小燈塔 - AR體驗</title>
+    
+    <!-- Mind AR 1.1.3 -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.3/dist/mindar-image-three.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      });
-
-      // 動畫
-      await mindarThree.start();
-      renderer.setAnimationLoop(() => {
-        bubbles.forEach((b, i) => {
-          b.position.y += Math.sin(Date.now() * 0.001 + i) * 0.0005;
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #mindar-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            color: #667eea;
+            font-weight: bold;
+            text-decoration: none;
+            pointer-events: all;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .scan-hint {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            text-align: center;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .scan-hint.hidden {
+            opacity: 0;
+        }
+        
+        .lighthouse-info {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px;
+            border-radius: 20px;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            max-width: 90%;
+        }
+        
+        .lighthouse-info.show {
+            opacity: 1;
+        }
+        
+        .support-list {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            max-width: 90%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            pointer-events: all;
+        }
+        
+        .support-list.show {
+            display: flex;
+        }
+        
+        .support-item {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .support-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .support-emoji {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        
+        .support-label {
+            color: #555;
+            font-size: 0.8rem;
+        }
+        
+        .message-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 50;
+            max-width: 80%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .message-popup.show {
+            opacity: 1;
+        }
+        
+        .question-box {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .question-box.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .question-box h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .question-box ol {
+            text-align: left;
+            color: #555;
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        
+        .question-box li {
+            margin-bottom: 10px;
+        }
+        
+        .qr-fallback {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 10px;
+            pointer-events: all;
+            z-index: 100;
+            display: none;
+        }
+        
+        .qr-fallback.show {
+            display: block;
+        }
+        
+        .qr-fallback a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #667eea;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="mindar-container"></div>
+        
+        <div class="ui-overlay">
+            <a href="index.html" class="back-btn">← 返回選單</a>
+            
+            <div class="scan-hint" id="scanHint">
+                📱 請將相機對準「黑夜裡的小燈塔」插畫圖片
+            </div>
+            
+            <div class="lighthouse-info" id="lighthouseInfo">
+                <h4>🏮 點擊燈塔照亮你的路</h4>
+            </div>
+            
+            <div class="support-list" id="supportList">
+                <div class="support-item" data-support="家人" data-desc="永遠的避風港">
+                    <div class="support-emoji">👨‍👩‍👧</div>
+                    <div class="support-label">家人</div>
+                </div>
+                <div class="support-item" data-support="朋友" data-desc="陪伴與理解">
+                    <div class="support-emoji">👫</div>
+                    <div class="support-label">朋友</div>
+                </div>
+                <div class="support-item" data-support="老師" data-desc="引導與支持">
+                    <div class="support-emoji">👩‍🏫</div>
+                    <div class="support-label">老師</div>
+                </div>
+                <div class="support-item" data-support="專業人士" data-desc="專業的協助">
+                    <div class="support-emoji">👨‍⚕️</div>
+                    <div class="support-label">專業人士</div>
+                </div>
+            </div>
+            
+            <div class="message-popup" id="messagePopup"></div>
+            
+            <div class="question-box" id="questionBox">
+                <h3>🤔 思考引導</h3>
+                <ol>
+                    <li>最近一次你真的想求助卻沒說出口是什麼時候？</li>
+                    <li>你身邊有哪些「值得信任的人」？</li>
+                    <li>如果你願意，下一次想把哪句話說出來？</li>
+                </ol>
+            </div>
+            
+            <div class="qr-fallback" id="qrFallback">
+                <p>掃描有困難嗎？</p>
+                <a href="sel-5-direct.html">直接觀看動畫 →</a>
+            </div>
+        </div>
+        
+        <div id="loading">
+            <div class="loader"></div>
+            <p>載入中...</p>
+        </div>
+    </div>
+    
+    <script>
+        let scene, camera, renderer;
+        let mindarThree;
+        let anchor;
+        let lighthouse, boat;
+        let waves = [];
+        let lightBeam;
+        let clock;
+        let isTracking = false;
+        let lighthouseClicked = false;
+        let supportersFound = new Set();
+        
+        async function initAR() {
+            // 初始化 MindAR
+            mindarThree = new window.MINDAR.IMAGE.MindARThree({
+                container: document.querySelector("#mindar-container"),
+                imageTargetSrc: 'targets-5.mind', // 需要您上傳對應的 .mind 文件
+                maxTrack: 1,
+                uiLoading: false,
+                uiScanning: false,
+                uiError: false
+            });
+            
+            const {renderer, scene, camera} = mindarThree;
+            
+            // 設置燈光 - 較暗的環境光模擬夜晚
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+            scene.add(ambientLight);
+            
+            // 創建錨點
+            anchor = mindarThree.addAnchor(0);
+            
+            // 創建場景元素
+            createLighthouse();
+            createBoat();
+            createWaves();
+            createStars();
+            
+            // 設置時鐘
+            clock = new THREE.Clock();
+            
+            // 開始AR
+            await mindarThree.start();
+            
+            // 隱藏載入畫面
+            document.getElementById('loading').style.display = 'none';
+            
+            // 顯示掃描提示
+            setTimeout(() => {
+                document.getElementById('qrFallback').classList.add('show');
+            }, 5000);
+            
+            // 設置追蹤事件
+            anchor.onTargetFound = () => {
+                console.log("目標找到");
+                isTracking = true;
+                document.getElementById('scanHint').classList.add('hidden');
+                document.getElementById('lighthouseInfo').classList.add('show');
+                startAnimation();
+            };
+            
+            anchor.onTargetLost = () => {
+                console.log("目標丟失");
+                isTracking = false;
+                document.getElementById('scanHint').classList.remove('hidden');
+                document.getElementById('lighthouseInfo').classList.remove('show');
+            };
+            
+            renderer.setAnimationLoop(() => {
+                if (isTracking) {
+                    animateScene();
+                }
+                renderer.render(scene, camera);
+            });
+        }
+        
+        function createLighthouse() {
+            // 創建燈塔主體（圓柱體）
+            const lighthouseGeometry = new THREE.CylinderGeometry(0.05, 0.08, 0.4, 8);
+            const lighthouseMaterial = new THREE.MeshPhongMaterial({
+                color: 0xff6b6b,
+                emissive: 0xff6b6b,
+                emissiveIntensity: 0.2
+            });
+            lighthouse = new THREE.Mesh(lighthouseGeometry, lighthouseMaterial);
+            lighthouse.position.set(0.3, 0.2, 0);
+            
+            // 創建燈塔頂部（燈光部分）
+            const topGeometry = new THREE.ConeGeometry(0.06, 0.08, 8);
+            const topMaterial = new THREE.MeshPhongMaterial({
+                color: 0xffd700,
+                emissive: 0xffd700,
+                emissiveIntensity: 0.5
+            });
+            const lighthouseTop = new THREE.Mesh(topGeometry, topMaterial);
+            lighthouseTop.position.y = 0.24;
+            lighthouse.add(lighthouseTop);
+            
+            // 創建光束（初始隱藏）
+            const beamGeometry = new THREE.ConeGeometry(0.3, 1, 32, 1, true);
+            const beamMaterial = new THREE.MeshBasicMaterial({
+                color: 0xfffacd,
+                transparent: true,
+                opacity: 0,
+                side: THREE.DoubleSide
+            });
+            lightBeam = new THREE.Mesh(beamGeometry, beamMaterial);
+            lightBeam.position.y = 0.7;
+            lightBeam.rotation.z = Math.PI;
+            lighthouse.add(lightBeam);
+            
+            // 添加點光源
+            const pointLight = new THREE.PointLight(0xffd700, 0, 0.5);
+            pointLight.position.set(0, 0.3, 0);
+            lighthouse.add(pointLight);
+            lighthouse.userData.light = pointLight;
+            
+            anchor.group.add(lighthouse);
+        }
+        
+        function createBoat() {
+            // 創建船的群組
+            const boatGroup = new THREE.Group();
+            
+            // 船身（簡單的梯形）
+            const boatGeometry = new THREE.BoxGeometry(0.15, 0.05, 0.08);
+            const boatMaterial = new THREE.MeshPhongMaterial({
+                color: 0x8b4513
+            });
+            boat = new THREE.Mesh(boatGeometry, boatMaterial);
+            
+            // 船帆
+            const sailGeometry = new THREE.PlaneGeometry(0.08, 0.12);
+            const sailMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                side: THREE.DoubleSide
+            });
+            const sail = new THREE.Mesh(sailGeometry, sailMaterial);
+            sail.position.y = 0.08;
+            boat.add(sail);
+            
+            boat.position.set(-0.2, -0.2, 0);
+            anchor.group.add(boat);
+        }
+        
+        function createWaves() {
+            // 創建波浪效果（多個平面）
+            for (let i = 0; i < 3; i++) {
+                const waveGeometry = new THREE.PlaneGeometry(2, 0.3, 20, 2);
+                const waveMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x1e3c72,
+                    transparent: true,
+                    opacity: 0.3 + i * 0.1,
+                    side: THREE.DoubleSide
+                });
+                const wave = new THREE.Mesh(waveGeometry, waveMaterial);
+                wave.position.y = -0.35 + i * 0.05;
+                wave.position.z = -0.1 + i * 0.05;
+                wave.rotation.x = -Math.PI / 2;
+                waves.push(wave);
+                anchor.group.add(wave);
+            }
+        }
+        
+        function createStars() {
+            // 創建星星粒子系統
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.02,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            const starsVertices = [];
+            for (let i = 0; i < 100; i++) {
+                const x = (Math.random() - 0.5) * 2;
+                const y = Math.random() * 0.8 + 0.2;
+                const z = (Math.random() - 0.5) * 1;
+                starsVertices.push(x, y, z);
+            }
+            
+            starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+            const stars = new THREE.Points(starsGeometry, starsMaterial);
+            anchor.group.add(stars);
+        }
+        
+        function startAnimation() {
+            // 初始動畫
+            showMessage("在黑暗中，點擊燈塔尋找光明");
+        }
+        
+        function animateScene() {
+            const time = clock.getElapsedTime();
+            
+            // 船的漂浮動畫
+            if (boat) {
+                boat.position.y = -0.2 + Math.sin(time * 2) * 0.02;
+                boat.rotation.z = Math.sin(time * 2) * 0.1;
+            }
+            
+            // 波浪動畫
+            waves.forEach((wave, index) => {
+                const vertices = wave.geometry.attributes.position.array;
+                for (let i = 0; i < vertices.length; i += 3) {
+                    vertices[i + 2] = Math.sin(vertices[i] * 2 + time * 2 + index) * 0.02;
+                }
+                wave.geometry.attributes.position.needsUpdate = true;
+            });
+            
+            // 燈塔光線旋轉
+            if (lighthouseClicked && lightBeam) {
+                lightBeam.rotation.y = time * 0.5;
+            }
+        }
+        
+        // Raycaster 處理點擊
+        function setupInteraction() {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            
+            document.addEventListener('click', (event) => {
+                if (!isTracking) return;
+                
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                
+                // 檢查燈塔點擊
+                const intersects = raycaster.intersectObject(lighthouse, true);
+                
+                if (intersects.length > 0 && !lighthouseClicked) {
+                    handleLighthouseClick();
+                }
+                
+                // 檢查船點擊
+                const boatIntersects = raycaster.intersectObject(boat, true);
+                
+                if (boatIntersects.length > 0 && lighthouseClicked) {
+                    handleBoatClick();
+                }
+            });
+        }
+        
+        function handleLighthouseClick() {
+            lighthouseClicked = true;
+            
+            // 燈光變亮
+            lighthouse.userData.light.intensity = 2;
+            
+            // 光束顯現
+            if (lightBeam) {
+                const duration = 1000;
+                const startTime = Date.now();
+                
+                function animate() {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    
+                    lightBeam.material.opacity = progress * 0.4;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    }
+                }
+                
+                animate();
+            }
+            
+            showMessage("你的生命中有哪些燈塔？");
+            
+            // 顯示支持系統
+            setTimeout(() => {
+                document.getElementById('lighthouseInfo').classList.remove('show');
+                document.getElementById('supportList').classList.add('show');
+            }, 2500);
+        }
+        
+        function handleBoatClick() {
+            // 船移動向燈塔
+            const duration = 2000;
+            const startTime = Date.now();
+            const startPos = boat.position.clone();
+            const targetPos = new THREE.Vector3(0.2, -0.2, 0);
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                boat.position.lerpVectors(startPos, targetPos, progress);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    showMessage("你正在航向光明");
+                }
+            }
+            
+            animate();
+        }
+        
+        // 設置支持者點擊事件
+        function setupSupportInteraction() {
+            const supportItems = document.querySelectorAll('.support-item');
+            
+            supportItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const support = item.getAttribute('data-support');
+                    const desc = item.getAttribute('data-desc');
+                    
+                    supportersFound.add(support);
+                    
+                    // 顯示描述
+                    showMessage(`${support}：${desc}`);
+                    
+                    // 標記已選擇
+                    item.style.background = 'rgba(102, 126, 234, 0.1)';
+                    
+                    // 檢查是否所有支持者都被選擇
+                    if (supportersFound.size === supportItems.length) {
+                        setTimeout(() => {
+                            document.getElementById('supportList').classList.remove('show');
+                            showMessage("當你需要幫助時，誰是你願意去找的人？");
+                            
+                            setTimeout(() => {
+                                document.getElementById('questionBox').classList.add('show');
+                            }, 3000);
+                        }, 2000);
+                    }
+                });
+            });
+        }
+        
+        function showMessage(message) {
+            const popup = document.getElementById('messagePopup');
+            popup.textContent = message;
+            popup.classList.add('show');
+            
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initAR();
+                setupInteraction();
+                setupSupportInteraction();
+            } catch (error) {
+                console.error('AR 初始化失敗:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<p style="color: red;">AR 載入失敗<br>請確認相機權限已開啟</p>' +
+                    '<a href="sel-5-direct.html" style="color: #667eea; margin-top: 20px; display: inline-block;">直接觀看動畫 →</a>';
+            }
         });
-
-        renderer.render(scene, camera);
-      });
-    };
-
-    startAR();
-  </script>
+    </script>
 </body>
 </html>

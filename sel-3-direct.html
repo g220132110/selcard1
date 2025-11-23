@@ -5,15 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>情緒植物園 - 直接觀看</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Microsoft JhengHei', Arial, sans-serif;
-            background: linear-gradient(135deg, #e0ffe4 0%, #b2f7ef 100%);
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+        
         .header {
             width: 100%;
             background: white;
@@ -22,26 +28,36 @@
             text-align: center;
             position: relative;
         }
+        
         .back-btn {
             position: absolute;
             left: 20px;
             top: 50%;
             transform: translateY(-50%);
             padding: 10px 20px;
-            background: #43a047;
+            background: #667eea;
             color: white;
             border-radius: 25px;
             text-decoration: none;
             font-weight: bold;
             transition: all 0.3s ease;
         }
+        
         .back-btn:hover {
-            background: #2e7d32;
+            background: #764ba2;
             transform: translateY(-50%) scale(1.05);
         }
-        h1 { color: #333; font-size: 1.8rem; }
-        .subtitle { color: #666; margin-top: 5px; }
-
+        
+        h1 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-top: 5px;
+        }
+        
         .main-container {
             flex: 1;
             width: 100%;
@@ -51,10 +67,11 @@
             flex-direction: column;
             align-items: center;
         }
+        
         .image-container {
             position: relative;
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             height: 500px;
             background: white;
             border-radius: 20px;
@@ -65,62 +82,148 @@
             align-items: center;
             justify-content: center;
         }
+        
         .illustration {
             width: 100%;
             height: 100%;
             object-fit: contain;
             padding: 20px;
         }
-
-        .plant-row {
+        
+        /* 植物容器 */
+        .plants-container {
             position: absolute;
-            bottom: 30px;
+            bottom: 10%;
             left: 50%;
             transform: translateX(-50%);
-            width: 90%;
             display: flex;
-            justify-content: space-between;
+            gap: 30px;
+            align-items: flex-end;
         }
+        
         .plant {
-            width: 60px;
-            height: 120px;
-            display: flex;
-            flex-direction: column-reverse;
-            align-items: center;
+            position: relative;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
-        .pot {
+        
+        .plant:hover {
+            transform: translateY(-10px);
+        }
+        
+        .plant-stem {
+            width: 20px;
+            background: linear-gradient(to top, #4a5f3a, #7a9f5a);
+            border-radius: 10px;
+            position: relative;
+            transition: all 1s ease;
+        }
+        
+        .plant-head {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
             width: 60px;
-            height: 30px;
-            border-radius: 8px 8px 3px 3px;
-            background: #8d6e63;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all 0.5s ease;
         }
-        .stem {
-            width: 14px;
-            border-radius: 999px;
-            background: #81c784;
-            transition: height 0.5s ease, background 0.5s ease;
+        
+        /* 五種情緒植物 */
+        .plant-anger {
+            .plant-stem { height: 80px; }
+            .plant-head { 
+                background: linear-gradient(135deg, #ff4444, #cc0000);
+                animation: shake 2s infinite;
+            }
         }
-        .leaf {
-            width: 30px;
-            height: 15px;
-            border-radius: 30px;
-            background: #a5d6a7;
-            margin-bottom: 4px;
+        
+        .plant-joy {
+            .plant-stem { height: 120px; }
+            .plant-head { 
+                background: linear-gradient(135deg, #44ff44, #00cc00);
+                animation: bounce 3s infinite;
+            }
         }
-        .plant-label {
-            font-size: 0.8rem;
-            margin-top: 4px;
-            color: #444;
+        
+        .plant-sad {
+            .plant-stem { height: 60px; }
+            .plant-head { 
+                background: linear-gradient(135deg, #4444ff, #0000cc);
+                animation: droop 4s infinite;
+            }
         }
-        .plant.angry  .stem { background:#e57373; }
-        .plant.happy  .stem { background:#fff176; }
-        .plant.sad    .stem { background:#90caf9; }
-        .plant.anxious.stem { background:#ffb74d; }
-        .plant.calm   .stem { background:#a5d6a7; }
-
+        
+        .plant-anxious {
+            .plant-stem { height: 90px; }
+            .plant-head { 
+                background: linear-gradient(135deg, #ffaa44, #ff8800);
+                animation: jitter 1s infinite;
+            }
+        }
+        
+        .plant-calm {
+            .plant-stem { height: 100px; }
+            .plant-head { 
+                background: linear-gradient(135deg, #44ffaa, #00cc88);
+                animation: breathe 4s infinite;
+            }
+        }
+        
+        /* 植物動畫 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            25% { transform: translateX(-55%) rotate(-5deg); }
+            75% { transform: translateX(-45%) rotate(5deg); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-15px); }
+        }
+        
+        @keyframes droop {
+            0%, 100% { transform: translateX(-50%) rotate(0deg); }
+            50% { transform: translateX(-50%) rotate(10deg) translateY(5px); }
+        }
+        
+        @keyframes jitter {
+            0%, 100% { transform: translateX(-50%); }
+            25% { transform: translateX(-48%); }
+            75% { transform: translateX(-52%); }
+        }
+        
+        @keyframes breathe {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+        }
+        
+        /* 生長/枯萎狀態 */
+        .plant.growing .plant-stem {
+            animation: grow 2s ease-out forwards;
+        }
+        
+        .plant.wilting .plant-stem {
+            animation: wilt 2s ease-out forwards;
+        }
+        
+        @keyframes grow {
+            from { transform: scaleY(1); }
+            to { transform: scaleY(1.3); }
+        }
+        
+        @keyframes wilt {
+            from { transform: scaleY(1); }
+            to { transform: scaleY(0.7); opacity: 0.6; }
+        }
+        
         .start-btn {
-            background: linear-gradient(135deg, #43a047, #66bb6a);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
             padding: 15px 40px;
@@ -129,24 +232,75 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(67, 160, 71, 0.4);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
             margin: 20px 0;
         }
+        
         .start-btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 10px 25px rgba(67, 160, 71, 0.6);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
-
-        .message-popup {
+        
+        /* 提示卡片 */
+        .tip-card {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: #2e7d32;
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            max-width: 400px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+        
+        .tip-card.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .tip-card h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tip-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .tip-card button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tip-card button:hover {
+            background: #764ba2;
+        }
+        
+        .message-popup {
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             padding: 20px 30px;
             border-radius: 15px;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             text-align: center;
             opacity: 0;
             pointer-events: none;
@@ -155,8 +309,11 @@
             max-width: 80%;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        .message-popup.show { opacity: 1; }
-
+        
+        .message-popup.show {
+            opacity: 1;
+        }
+        
         .question-section {
             width: 100%;
             max-width: 600px;
@@ -167,30 +324,61 @@
             margin-top: 20px;
             display: none;
         }
+        
         .question-section.show {
             display: block;
             animation: slideIn 0.5s ease;
         }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         .question-section h2 {
             color: #333;
             margin-bottom: 20px;
             font-size: 1.5rem;
         }
+        
         .question-section ol {
             color: #555;
             line-height: 1.8;
             padding-left: 20px;
         }
-        .question-section li { margin-bottom: 15px; }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
+        
+        .question-section li {
+            margin-bottom: 15px;
         }
+        
         @media (max-width: 768px) {
-            .back-btn { position: static; transform: none; margin-bottom: 10px; }
-            h1 { font-size: 1.5rem; margin-top: 10px; }
-            .image-container { height: 400px; }
+            .plants-container {
+                gap: 15px;
+            }
+            
+            .plant-head {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .back-btn {
+                position: static;
+                transform: none;
+                display: inline-block;
+                margin-bottom: 10px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
@@ -198,110 +386,193 @@
     <div class="header">
         <a href="index.html" class="back-btn">← 返回選單</a>
         <h1>情緒植物園</h1>
-        <p class="subtitle">Emotion Regulation（情緒管理）</p>
+        <p class="subtitle">情緒管理 (Emotion Regulation)</p>
     </div>
-
+    
     <div class="main-container">
-        <button class="start-btn" id="startBtn">開始灌溉你的情緒花園</button>
-
+        <button class="start-btn" id="startBtn">開始體驗</button>
+        
         <div class="image-container" id="imageContainer">
+            <!-- 這裡應該放置您的插畫圖片 sel-3.png -->
             <img src="sel-3.png" alt="情緒植物園" class="illustration">
-
-            <div class="plant-row">
-                <div class="plant angry"   data-message="生氣的情緒需要出口：先離開現場、深呼吸。">
-                    <div class="pot"></div>
-                    <div class="stem" style="height:50px;"></div>
-                    <div class="leaf"></div>
-                    <div class="plant-label">怒</div>
+            
+            <!-- 五株情緒植物 -->
+            <div class="plants-container" id="plantsContainer" style="display: none;">
+                <div class="plant plant-anger" data-emotion="怒" data-tip="離開現場、深呼吸">
+                    <div class="plant-stem"></div>
+                    <div class="plant-head">😡</div>
                 </div>
-                <div class="plant happy"   data-message="開心的情緒，可以記下來，成為以後的能量。">
-                    <div class="pot"></div>
-                    <div class="stem" style="height:60px;"></div>
-                    <div class="leaf"></div>
-                    <div class="plant-label">喜</div>
+                <div class="plant plant-joy" data-emotion="喜" data-tip="分享快樂、記錄美好時刻">
+                    <div class="plant-stem"></div>
+                    <div class="plant-head">😊</div>
                 </div>
-                <div class="plant sad"     data-message="悲傷的情緒，不需要隱藏，可以找人說說。">
-                    <div class="pot"></div>
-                    <div class="stem" style="height:45px;"></div>
-                    <div class="leaf"></div>
-                    <div class="plant-label">悲</div>
+                <div class="plant plant-sad" data-emotion="悲" data-tip="跟人說一句心事、允許自己哭泣">
+                    <div class="plant-stem"></div>
+                    <div class="plant-head">😢</div>
                 </div>
-                <div class="plant anxious" data-message="焦慮時，試著把事情寫下來，一件一件排順序。">
-                    <div class="pot"></div>
-                    <div class="stem" style="height:55px;"></div>
-                    <div class="leaf"></div>
-                    <div class="plant-label">焦</div>
+                <div class="plant plant-anxious" data-emotion="焦" data-tip="把事情寫下排序、一次做一件事">
+                    <div class="plant-stem"></div>
+                    <div class="plant-head">😰</div>
                 </div>
-                <div class="plant calm"    data-message="平靜的時刻，是身心在充電，要好好珍惜。">
-                    <div class="pot"></div>
-                    <div class="stem" style="height:70px;"></div>
-                    <div class="leaf"></div>
-                    <div class="plant-label">靜</div>
+                <div class="plant plant-calm" data-emotion="平靜" data-tip="保持這個狀態、練習正念冥想">
+                    <div class="plant-stem"></div>
+                    <div class="plant-head">😌</div>
                 </div>
             </div>
         </div>
-
+        
         <div class="message-popup" id="messagePopup"></div>
-
+        
+        <!-- 提示卡片 -->
+        <div class="tip-card" id="tipCard">
+            <h3><span id="tipEmoji">🌱</span> <span id="tipTitle">情緒提示</span></h3>
+            <p id="tipContent">提示內容</p>
+            <button onclick="closeTip()">了解</button>
+        </div>
+        
         <div class="question-section" id="questionSection">
             <h2>🤔 思考引導</h2>
             <ol>
-                <li>你今天的「情緒植物」中，哪一株長得最旺？為什麼？</li>
-                <li>回想一次你把情緒藏起來反而更累的經驗，當時發生了什麼？</li>
-                <li>有沒有一個你願意嘗試的方法，讓自己在情緒來時好過一點？例如深呼吸、寫下來、找朋友聊聊。</li>
+                <li>你今天的「情緒植物」是哪一株最強？為什麼？</li>
+                <li>回想一次你把情緒藏起來反而更累的經驗？</li>
+                <li>有沒有一個方法是你願意試著讓自己好過一點？</li>
             </ol>
         </div>
     </div>
-
+    
     <script>
         const startBtn = document.getElementById('startBtn');
+        const plantsContainer = document.getElementById('plantsContainer');
         const plants = document.querySelectorAll('.plant');
         const messagePopup = document.getElementById('messagePopup');
+        const tipCard = document.getElementById('tipCard');
         const questionSection = document.getElementById('questionSection');
-        let clickedCount = 0;
-
-        plants.forEach(p => p.style.opacity = 0);
-
+        let animationStarted = false;
+        let clickedPlants = new Set();
+        
+        // 開始按鈕點擊事件
         startBtn.addEventListener('click', () => {
+            startAnimation();
             startBtn.style.display = 'none';
+        });
+        
+        function startAnimation() {
+            if (animationStarted) return;
+            animationStarted = true;
+            
+            // 顯示植物容器
+            plantsContainer.style.display = 'flex';
+            
+            // 顯示初始訊息
+            showMessage("觀察你的情緒植物園，點擊植物了解如何照顧它們");
+            
+            // 植物逐個生長動畫
             plants.forEach((plant, index) => {
                 setTimeout(() => {
-                    plant.style.opacity = 1;
-                }, index * 400);
+                    plant.classList.add('growing');
+                    
+                    // 隨機改變某些植物的狀態
+                    if (Math.random() > 0.5) {
+                        setTimeout(() => {
+                            simulateEmotionChange(plant);
+                        }, 2000);
+                    }
+                }, index * 500);
             });
-        });
-
+        }
+        
+        // 模擬情緒變化
+        function simulateEmotionChange(plant) {
+            const states = ['growing', 'wilting'];
+            const randomState = states[Math.floor(Math.random() * states.length)];
+            
+            // 移除所有狀態類
+            plant.classList.remove('growing', 'wilting');
+            
+            // 添加新狀態
+            setTimeout(() => {
+                plant.classList.add(randomState);
+            }, 100);
+        }
+        
+        // 植物點擊事件
         plants.forEach(plant => {
             plant.addEventListener('click', () => {
-                const stem = plant.querySelector('.stem');
-                stem.style.height = parseInt(stem.style.height) + 15 + "px";
-
-                const msg = plant.getAttribute('data-message');
-                showMessage(msg);
-
-                if (!plant.classList.contains('clicked')) {
-                    plant.classList.add('clicked');
-                    clickedCount++;
-                    if (clickedCount >= 3) {
-                        setTimeout(() => {
-                            questionSection.classList.add('show');
-                        }, 800);
-                    }
+                const emotion = plant.getAttribute('data-emotion');
+                const tip = plant.getAttribute('data-tip');
+                
+                // 記錄點擊的植物
+                clickedPlants.add(emotion);
+                
+                // 顯示情緒調節提示
+                showTip(emotion, tip);
+                
+                // 植物反應動畫
+                plant.classList.remove('wilting');
+                plant.classList.add('growing');
+                
+                // 改變植物顏色表示已被照顧
+                const plantHead = plant.querySelector('.plant-head');
+                plantHead.style.filter = 'brightness(1.2)';
+                
+                // 檢查是否所有植物都被點擊
+                if (clickedPlants.size === plants.length) {
+                    setTimeout(() => {
+                        showFinalMessage();
+                    }, 2000);
                 }
             });
         });
-
+        
         function showMessage(message) {
             messagePopup.textContent = message;
             messagePopup.classList.add('show');
+            
             setTimeout(() => {
                 messagePopup.classList.remove('show');
             }, 3000);
         }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            console.log('情緒植物園頁面載入完成');
-        });
+        
+        function showTip(emotion, tip) {
+            const tipEmoji = document.getElementById('tipEmoji');
+            const tipTitle = document.getElementById('tipTitle');
+            const tipContent = document.getElementById('tipContent');
+            
+            // 根據情緒設置不同的emoji
+            const emojiMap = {
+                '怒': '😡',
+                '喜': '😊',
+                '悲': '😢',
+                '焦': '😰',
+                '平靜': '😌'
+            };
+            
+            tipEmoji.textContent = emojiMap[emotion];
+            tipTitle.textContent = `${emotion}的調節方法`;
+            tipContent.textContent = tip;
+            
+            tipCard.classList.add('show');
+        }
+        
+        function closeTip() {
+            tipCard.classList.remove('show');
+        }
+        
+        function showFinalMessage() {
+            showMessage("你已經學會照顧所有的情緒植物了！");
+            
+            setTimeout(() => {
+                questionSection.classList.add('show');
+            }, 3500);
+        }
+        
+        // 定期隨機改變植物狀態
+        setInterval(() => {
+            if (animationStarted) {
+                const randomPlant = plants[Math.floor(Math.random() * plants.length)];
+                simulateEmotionChange(randomPlant);
+            }
+        }, 5000);
     </script>
 </body>
 </html>

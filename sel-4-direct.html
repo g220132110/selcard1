@@ -3,211 +3,599 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>兩條路的十字路口 - 直接觀看（動畫版）</title>
-
+    <title>兩條路的十字路口 - 直接觀看</title>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family:'Microsoft JhengHei', Arial, sans-serif;
-            background:linear-gradient(135deg,#ffe0b2 0%,#ffcc80 100%);
-            min-height:100vh;
-            display:flex;
-            flex-direction:column;
-            align-items:center;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+        
         .header {
-            width:100%; background:white; padding:20px;
-            box-shadow:0 2px 10px rgba(0,0,0,0.1);
-            text-align:center; position:relative;
+            width: 100%;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
         }
+        
         .back-btn {
-            position:absolute; left:20px; top:50%; transform:translateY(-50%);
-            padding:10px 20px; background:#fb8c00; color:white;
-            border-radius:25px; text-decoration:none; font-weight:bold;
-            transition:all 0.3s ease;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
         }
-        .back-btn:hover { background:#ef6c00; transform:translateY(-50%) scale(1.05); }
-        h1 { color:#333; font-size:1.8rem; }
-        .subtitle { color:#666; margin-top:5px; }
-
+        
+        .back-btn:hover {
+            background: #764ba2;
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-top: 5px;
+        }
+        
         .main-container {
-            flex:1; width:100%; max-width:1000px; padding:20px;
-            display:flex; flex-direction:column; align-items:center;
+            flex: 1;
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-
-        /* ------------------ 主圖片區 ------------------ */
+        
         .image-container {
-            position:relative; width:100%; max-width:600px; height:500px;
-            background:white; border-radius:20px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.1);
-            margin:20px 0; overflow:hidden;
-            display:flex; align-items:center; justify-content:center;
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 20px 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        
         .illustration {
-            width:100%; height:100%; object-fit:contain; padding:20px;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 20px;
         }
-
-        /* ------------------ 選項泡泡 ------------------ */
-        .choice {
-            position:absolute;
-            display:flex; flex-direction:column; align-items:center;
-            cursor:pointer; opacity:0;
-            transition:transform 0.3s ease, opacity 0.5s ease;
-            animation: float 3s ease-in-out infinite;
+        
+        /* 路徑SVG容器 */
+        .paths-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
         }
-        .choice-icon {
-            width:70px; height:70px; border-radius:50%;
-            background:white; box-shadow:0 5px 15px rgba(0,0,0,0.2);
-            display:flex; align-items:center; justify-content:center;
-            font-size:30px; margin-bottom:5px;
+        
+        /* 路徑樣式 */
+        .path-a {
+            stroke: #ffd700;
+            stroke-width: 4;
+            fill: none;
+            stroke-dasharray: 500;
+            stroke-dashoffset: 500;
+            animation: drawPath 3s ease forwards;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
         }
-        .choice-label {
-            font-size:0.85rem; color:#444; text-shadow:0 0 4px #fff;
+        
+        .path-b {
+            stroke: #87ceeb;
+            stroke-width: 4;
+            fill: none;
+            stroke-dasharray: 500;
+            stroke-dashoffset: 500;
+            animation: drawPath 3s ease 0.5s forwards;
+            filter: drop-shadow(0 0 10px rgba(135, 206, 235, 0.5));
         }
-
-        /* 進場：淡入 + 上浮 */
-        .appear {
-            animation: appearUp 0.8s ease forwards;
+        
+        @keyframes drawPath {
+            to {
+                stroke-dashoffset: 0;
+            }
         }
-
-        @keyframes appearUp {
-            from { opacity:0; transform:translateY(30px); }
-            to   { opacity:1; transform:translateY(0px); }
+        
+        /* 選擇物件 */
+        .choice-item {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 2.5rem;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+            opacity: 0;
+            animation: fadeInBounce 0.5s ease forwards;
         }
-
-        /* 漂浮動畫 */
-        @keyframes float {
-            0%,100% { transform:translateY(0); }
-            50%    { transform:translateY(-10px); }
+        
+        .choice-item:hover {
+            transform: scale(1.2) rotate(10deg);
         }
-
-        /* ------------------ 思考引導 ------------------ */
+        
+        @keyframes fadeInBounce {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .item-book {
+            top: 30%;
+            left: 20%;
+            animation-delay: 1s;
+        }
+        
+        .item-phone {
+            top: 40%;
+            right: 25%;
+            animation-delay: 1.2s;
+        }
+        
+        .item-heart {
+            bottom: 30%;
+            left: 30%;
+            animation-delay: 1.4s;
+        }
+        
+        .item-friend {
+            top: 25%;
+            right: 15%;
+            animation-delay: 1.6s;
+        }
+        
+        .item-dream {
+            bottom: 25%;
+            right: 20%;
+            animation-delay: 1.8s;
+        }
+        
+        /* 路徑標籤 */
+        .path-label {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .path-label.show {
+            opacity: 1;
+        }
+        
+        .label-a {
+            top: 50%;
+            left: 10%;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+        }
+        
+        .label-b {
+            top: 50%;
+            right: 10%;
+            background: linear-gradient(135deg, #87ceeb, #98d8f4);
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            margin: 20px 0;
+        }
+        
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* 物件提示卡 */
+        .item-tooltip {
+            position: fixed;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            max-width: 250px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+        
+        .item-tooltip.show {
+            opacity: 1;
+        }
+        
+        .item-tooltip h4 {
+            color: #333;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .item-tooltip p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .message-popup {
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 100;
+            max-width: 80%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .message-popup.show {
+            opacity: 1;
+        }
+        
         .question-section {
-            width:100%; max-width:600px;
-            background:white;
-            padding:30px; border-radius:20px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.1);
-            margin-top:20px; display:none;
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .question-section.show {
+            display: block;
             animation: slideIn 0.5s ease;
         }
-        .question-section h2 {
-            color:#333; margin-bottom:20px; font-size:1.5rem;
-        }
-        .question-section ol {
-            color:#555; line-height:1.8; padding-left:20px;
-        }
-        .question-section li { margin-bottom:10px; }
-
+        
         @keyframes slideIn {
-            from { opacity:0; transform:translateY(20px); }
-            to   { opacity:1; transform:translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-
-        .message-popup {
-            position:fixed; top:50%; left:50%;
-            transform:translate(-50%,-50%);
-            background:#ef6c00; color:white;
-            padding:20px 30px; border-radius:15px;
-            font-size:1rem; text-align:center;
-            opacity:0; pointer-events:none;
-            transition:opacity 0.5s ease;
-            z-index:100; max-width:80%;
-            box-shadow:0 10px 30px rgba(0,0,0,0.3);
+        
+        .question-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
         }
-        .message-popup.show { opacity:1; }
+        
+        .question-section ol {
+            color: #555;
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        
+        .question-section li {
+            margin-bottom: 15px;
+        }
+        
+        /* 決策按鈕 */
+        .decision-buttons {
+            display: none;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .decision-buttons.show {
+            display: flex;
+        }
+        
+        .decision-btn {
+            flex: 1;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-path-a {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+        }
+        
+        .btn-path-b {
+            background: linear-gradient(135deg, #87ceeb, #98d8f4);
+            color: #333;
+        }
+        
+        .decision-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .choice-item {
+                font-size: 2rem;
+            }
+            
+            .path-label {
+                font-size: 0.8rem;
+                padding: 8px 15px;
+            }
+            
+            .decision-buttons {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
-
 <body>
     <div class="header">
-        <a href="index.html" class="back-btn">← 返回</a>
+        <a href="index.html" class="back-btn">← 返回選單</a>
         <h1>兩條路的十字路口</h1>
-        <p class="subtitle">Decision Making（決策與價值）</p>
+        <p class="subtitle">決策與價值 (Decision Making)</p>
     </div>
-
+    
     <div class="main-container">
-        <div class="image-container">
-            <img src="sel-4.png" class="illustration">
-
-            <!-- 六個選項 -->
-            <div class="choice c1" data-message="成績：走起來辛苦，但會累積你的實力。" style="left:15%; bottom:28%;">
-                <div class="choice-icon">📚</div><div class="choice-label">學習</div>
+        <button class="start-btn" id="startBtn">開始體驗</button>
+        
+        <div class="image-container" id="imageContainer">
+            <!-- 這裡應該放置您的插畫圖片 sel-4.png -->
+            <img src="sel-4.png" alt="兩條路的十字路口" class="illustration">
+            
+            <!-- SVG路徑 -->
+            <svg class="paths-svg" id="pathsSvg" style="display: none;">
+                <path class="path-a" d="M 350 400 Q 200 300 150 100"></path>
+                <path class="path-b" d="M 350 400 Q 500 300 550 100"></path>
+            </svg>
+            
+            <!-- 選擇物件 -->
+            <div class="choice-item item-book" data-item="書本" data-meaning="知識與學習的追求" style="display: none;">📚</div>
+            <div class="choice-item item-phone" data-item="手機" data-meaning="連結與即時滿足" style="display: none;">📱</div>
+            <div class="choice-item item-heart" data-item="心" data-meaning="內心的聲音與感受" style="display: none;">❤️</div>
+            <div class="choice-item item-friend" data-item="好友" data-meaning="人際關係與陪伴" style="display: none;">👥</div>
+            <div class="choice-item item-dream" data-item="夢想" data-meaning="理想與未來願景" style="display: none;">✨</div>
+            
+            <!-- 路徑標籤 -->
+            <div class="path-label label-a" id="labelA">
+                <strong>A路：輕鬆路徑</strong><br>
+                短暫開心，但可能走不遠
             </div>
-
-            <div class="choice c2" data-message="娛樂：能放鬆，但時間很容易被偷走。" style="right:15%; bottom:28%;">
-                <div class="choice-icon">📱</div><div class="choice-label">娛樂</div>
-            </div>
-
-            <div class="choice c3" data-message="理想：不一定容易，但最接近真正想成為的自己。" style="left:20%; top:20%;">
-                <div class="choice-icon">⭐</div><div class="choice-label">夢想</div>
-            </div>
-
-            <div class="choice c4" data-message="朋友：陪伴重要，但選擇依然要忠於自己。" style="right:20%; top:20%;">
-                <div class="choice-icon">👥</div><div class="choice-label">朋友</div>
-            </div>
-
-            <div class="choice c5" data-message="安全感：舒服、穩定，但可能離夢想更遠一點。" style="left:40%; bottom:10%;">
-                <div class="choice-icon">🛌</div><div class="choice-label">安全圈</div>
-            </div>
-
-            <div class="choice c6" data-message="價值：你真正想守護的，不一定會被大家理解。" style="right:40%; bottom:10%;">
-                <div class="choice-icon">❤️</div><div class="choice-label">價值</div>
+            
+            <div class="path-label label-b" id="labelB">
+                <strong>B路：成長路徑</strong><br>
+                有挑戰，但通向光明
             </div>
         </div>
-
-        <div class="message-popup" id="popup"></div>
-
-        <div class="question-section" id="question">
+        
+        <!-- 物件提示 -->
+        <div class="item-tooltip" id="itemTooltip">
+            <h4><span id="tooltipEmoji">📦</span> <span id="tooltipTitle">物件</span></h4>
+            <p id="tooltipContent">象徵意義</p>
+        </div>
+        
+        <div class="message-popup" id="messagePopup"></div>
+        
+        <!-- 決策按鈕 -->
+        <div class="decision-buttons" id="decisionButtons">
+            <button class="decision-btn btn-path-a" onclick="choosePath('A')">選擇 A 路</button>
+            <button class="decision-btn btn-path-b" onclick="choosePath('B')">選擇 B 路</button>
+        </div>
+        
+        <div class="question-section" id="questionSection">
             <h2>🤔 思考引導</h2>
             <ol>
-                <li>最近讓你卡住的選擇是什麼？為什麼？</li>
-                <li>做決定時，你最在乎的是誰的期待？</li>
-                <li>如果不會失敗，你最想選哪一條路？</li>
+                <li>最近讓你卡住的選擇是什麼？</li>
+                <li>你做決定時最看重什麼？（舒適 / 安全 / 成績 / 別人的期待 / 自己的夢想）</li>
+                <li>如果沒有失敗，你最想走哪條路？</li>
             </ol>
         </div>
     </div>
-
+    
     <script>
-        const popup = document.getElementById("popup");
-        const question = document.getElementById("question");
-        const choices = document.querySelectorAll(".choice");
-        let clickCount = 0;
-
-        // 1. 進場動畫（依序浮出）
-        choices.forEach((c, i) => {
-            setTimeout(() => {
-                c.classList.add("appear");
-            }, 300 * i);
+        const startBtn = document.getElementById('startBtn');
+        const pathsSvg = document.getElementById('pathsSvg');
+        const choiceItems = document.querySelectorAll('.choice-item');
+        const labelA = document.getElementById('labelA');
+        const labelB = document.getElementById('labelB');
+        const messagePopup = document.getElementById('messagePopup');
+        const itemTooltip = document.getElementById('itemTooltip');
+        const decisionButtons = document.getElementById('decisionButtons');
+        const questionSection = document.getElementById('questionSection');
+        
+        let animationStarted = false;
+        let clickedItems = new Set();
+        
+        // 開始按鈕點擊事件
+        startBtn.addEventListener('click', () => {
+            startAnimation();
+            startBtn.style.display = 'none';
         });
-
-        // 2. 點擊互動
-        choices.forEach(c => {
-            c.addEventListener("click", () => {
-                const msg = c.getAttribute("data-message");
-                showMessage(msg);
-
-                // 點擊動畫：放大 → 縮小 → 淡出
-                c.style.transition = "transform 0.3s ease, opacity 0.5s ease";
-                c.style.transform = "scale(1.2)";
+        
+        function startAnimation() {
+            if (animationStarted) return;
+            animationStarted = true;
+            
+            // 顯示SVG路徑
+            pathsSvg.style.display = 'block';
+            
+            // 延遲顯示路徑標籤
+            setTimeout(() => {
+                labelA.classList.add('show');
+                labelB.classList.add('show');
+            }, 2000);
+            
+            // 顯示選擇物件
+            choiceItems.forEach((item, index) => {
                 setTimeout(() => {
-                    c.style.transform = "scale(0.8)";
-                    c.style.opacity = "0";
-                }, 200);
-
-                clickCount++;
-                if (clickCount >= 3) {
+                    item.style.display = 'block';
+                }, 1000 + index * 200);
+            });
+            
+            // 顯示初始訊息
+            setTimeout(() => {
+                showMessage("點擊物件了解它們的象徵意義");
+            }, 3000);
+            
+            // 延遲顯示決策按鈕
+            setTimeout(() => {
+                decisionButtons.classList.add('show');
+            }, 4000);
+        }
+        
+        // 物件點擊事件
+        choiceItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                const itemName = item.getAttribute('data-item');
+                const meaning = item.getAttribute('data-meaning');
+                const emoji = item.textContent;
+                
+                // 記錄點擊
+                clickedItems.add(itemName);
+                
+                // 顯示提示
+                showItemTooltip(e, emoji, itemName, meaning);
+                
+                // 物件發光效果
+                item.style.filter = 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))';
+                
+                // 檢查是否所有物件都被點擊
+                if (clickedItems.size === choiceItems.length) {
                     setTimeout(() => {
-                        question.style.display = "block";
-                    }, 700);
+                        showMessage("你在害怕選擇什麼？");
+                        setTimeout(() => {
+                            messagePopup.classList.remove('show');
+                        }, 3000);
+                    }, 1000);
                 }
             });
+            
+            item.addEventListener('mouseenter', (e) => {
+                if (clickedItems.has(item.getAttribute('data-item'))) {
+                    const itemName = item.getAttribute('data-item');
+                    const meaning = item.getAttribute('data-meaning');
+                    const emoji = item.textContent;
+                    showItemTooltip(e, emoji, itemName, meaning);
+                }
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                hideItemTooltip();
+            });
         });
-
-        function showMessage(text) {
-            popup.textContent = text;
-            popup.classList.add("show");
-            setTimeout(() => popup.classList.remove("show"), 2500);
+        
+        function showItemTooltip(event, emoji, title, content) {
+            const tooltip = document.getElementById('itemTooltip');
+            document.getElementById('tooltipEmoji').textContent = emoji;
+            document.getElementById('tooltipTitle').textContent = title;
+            document.getElementById('tooltipContent').textContent = content;
+            
+            // 設置位置
+            tooltip.style.left = event.pageX + 20 + 'px';
+            tooltip.style.top = event.pageY - 50 + 'px';
+            
+            tooltip.classList.add('show');
         }
+        
+        function hideItemTooltip() {
+            document.getElementById('itemTooltip').classList.remove('show');
+        }
+        
+        function showMessage(message) {
+            messagePopup.textContent = message;
+            messagePopup.classList.add('show');
+            
+            setTimeout(() => {
+                messagePopup.classList.remove('show');
+            }, 3000);
+        }
+        
+        function choosePath(path) {
+            const messages = {
+                'A': '你選擇了輕鬆的道路，短期內可能會感到舒適...',
+                'B': '你選擇了成長的道路，雖有挑戰但充滿可能...'
+            };
+            
+            showMessage(messages[path]);
+            
+            // 強調選擇的路徑
+            if (path === 'A') {
+                document.querySelector('.path-a').style.strokeWidth = '8';
+                document.querySelector('.path-b').style.opacity = '0.3';
+            } else {
+                document.querySelector('.path-b').style.strokeWidth = '8';
+                document.querySelector('.path-a').style.opacity = '0.3';
+            }
+            
+            // 隱藏決策按鈕
+            decisionButtons.style.display = 'none';
+            
+            // 顯示問題
+            setTimeout(() => {
+                questionSection.classList.add('show');
+            }, 3500);
+        }
+        
+        // 頁面載入完成後的初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('頁面已載入完成');
+        });
     </script>
 </body>
 </html>

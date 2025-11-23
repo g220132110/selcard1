@@ -1,176 +1,584 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SEL 卡片 3 ─ 情緒植物園</title>
-
-  <!-- ThreeJS + MindAR -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.3/dist/mindar-image-three.prod.js"></script>
-
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      font-family: "Microsoft JhengHei", Arial, sans-serif;
-    }
-    #mindar-container {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-    }
-    #messageBox, #questionBox {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.65);
-      color: white;
-      padding: 14px 22px;
-      border-radius: 14px;
-      opacity: 0;
-      transition: opacity 0.4s;
-      text-align: center;
-      z-index: 999;
-      width: 80%;
-      max-width: 420px;
-      line-height: 1.5;
-    }
-    #messageBox { top: 10vh; }
-    #questionBox { bottom: 8vh; font-size: 0.95rem; }
-  </style>
-</head>
-
-<body>
-  <div id="mindar-container"></div>
-
-  <!-- 彈出訊息 -->
-  <div id="messageBox"></div>
-
-  <!-- 思考引導 -->
-  <div id="questionBox">
-    <b>思考引導：</b><br><br>
-    ● 今天你的「情緒植物」是哪一株？為什麼？<br>
-    ● 哪個情緒你最容易忽略？忽略後會怎麼影響你？<br>
-    ● 想一個方法，讓你在下一次情緒來時更溫柔地對待自己？
-  </div>
-
-  <script type="module">
-    const messageBox = document.getElementById("messageBox");
-    const questionBox = document.getElementById("questionBox");
-
-    // 五種情緒植物的訊息
-    const plantMessages = [
-      "怒：離開現場、深呼吸，讓自己冷靜一下。",
-      "喜：記住這個開心時刻，它能成為你的能量。",
-      "悲：悲傷不需要藏起來，可以說給信任的人聽。",
-      "焦：把擔心的事寫下來，一件一件排順序。",
-      "靜：平靜是身心在充電，要好好珍惜。"
-    ];
-
-    let clickCount = 0;
-
-    function showMessage(text) {
-      messageBox.innerText = text;
-      messageBox.style.opacity = 1;
-
-      setTimeout(() => {
-        messageBox.style.opacity = 0;
-      }, 2800);
-    }
-
-    function tryShowQuestions() {
-      if (clickCount >= 3) {
-        questionBox.style.opacity = 1;
-      }
-    }
-
-    // 啟動 AR
-    const startAR = async () => {
-      const mindarThree = new window.MINDAR.IMAGE.MindARThree({
-        container: document.querySelector("#mindar-container"),
-        imageTargetSrc: "targets-3.mind",
-      });
-
-      const { renderer, scene, camera } = mindarThree;
-
-      const anchor = mindarThree.addAnchor(0);
-
-      // 光源
-      const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
-      scene.add(light);
-
-      // 五棵「情緒植物」球體
-      const plants = [];
-      const geometry = new THREE.ConeGeometry(0.18, 0.35, 24);
-      const material = new THREE.MeshStandardMaterial({
-        color: 0x88cc88,
-        roughness: 0.6,
-        metalness: 0.1,
-      });
-
-      // 五株植物位置
-      const positions = [
-        [-0.55, -0.1],   // 怒
-        [-0.25, -0.1],   // 喜
-        [0.05, -0.1],    // 悲
-        [0.35, -0.1],    // 焦
-        [0.65, -0.1],    // 靜
-      ];
-
-      for (let i = 0; i < 5; i++) {
-        const plant = new THREE.Mesh(geometry, material.clone());
-
-        plant.position.set(positions[i][0], positions[i][1], 0);
-        plant.userData.index = i;
-
-        // 顏色稍微區分
-        const colors = [0xff6666, 0xffee66, 0x66aaff, 0xffbb66, 0x99dd99];
-        plant.material.color.setHex(colors[i]);
-
-        anchor.group.add(plant);
-        plants.push(plant);
-      }
-
-      // 點擊偵測
-      const raycaster = new THREE.Raycaster();
-      const mouse = new THREE.Vector2();
-
-      window.addEventListener("click", (e) => {
-        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(plants);
-
-        if (intersects.length > 0) {
-          const obj = intersects[0].object;
-          const idx = obj.userData.index;
-
-          showMessage(plantMessages[idx]);
-
-          // 動畫：植物長高
-          obj.scale.y += 0.15;
-          obj.scale.x += 0.05;
-
-          clickCount++;
-          tryShowQuestions();
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>情緒植物園 - AR體驗</title>
+    
+    <!-- Mind AR 1.1.3 -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.3/dist/mindar-image-three.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      });
-
-      // 動畫 loop
-      await mindarThree.start();
-      renderer.setAnimationLoop(() => {
-        plants.forEach((p, i) => {
-          p.rotation.y += 0.01; // 微轉動
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #mindar-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            color: #667eea;
+            font-weight: bold;
+            text-decoration: none;
+            pointer-events: all;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .scan-hint {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            text-align: center;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .scan-hint.hidden {
+            opacity: 0;
+        }
+        
+        .emotion-tip {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 80%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 50;
+        }
+        
+        .emotion-tip.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .emotion-tip h3 {
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .emotion-tip p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .emotion-tip button {
+            margin-top: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        
+        .plant-info {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px;
+            border-radius: 20px;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            max-width: 90%;
+        }
+        
+        .plant-info.show {
+            opacity: 1;
+        }
+        
+        .question-box {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .question-box.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .question-box h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .question-box ol {
+            text-align: left;
+            color: #555;
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        
+        .question-box li {
+            margin-bottom: 10px;
+        }
+        
+        .qr-fallback {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 10px;
+            pointer-events: all;
+            z-index: 100;
+            display: none;
+        }
+        
+        .qr-fallback.show {
+            display: block;
+        }
+        
+        .qr-fallback a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #667eea;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="mindar-container"></div>
+        
+        <div class="ui-overlay">
+            <a href="index.html" class="back-btn">← 返回選單</a>
+            
+            <div class="scan-hint" id="scanHint">
+                📱 請將相機對準「情緒植物園」插畫圖片
+            </div>
+            
+            <div class="plant-info" id="plantInfo">
+                <h4>🌱 點擊植物了解如何照顧你的情緒</h4>
+            </div>
+            
+            <div class="emotion-tip" id="emotionTip">
+                <h3><span id="tipEmoji">🌱</span> <span id="tipTitle">情緒調節</span></h3>
+                <p id="tipContent">調節方法</p>
+                <button onclick="closeTip()">了解</button>
+            </div>
+            
+            <div class="question-box" id="questionBox">
+                <h3>🤔 思考引導</h3>
+                <ol>
+                    <li>你今天的「情緒植物」是哪一株最強？</li>
+                    <li>回想一次你把情緒藏起來反而更累的經驗？</li>
+                    <li>有沒有一個方法是你願意試著讓自己好過一點？</li>
+                </ol>
+            </div>
+            
+            <div class="qr-fallback" id="qrFallback">
+                <p>掃描有困難嗎？</p>
+                <a href="sel-3-direct.html">直接觀看動畫 →</a>
+            </div>
+        </div>
+        
+        <div id="loading">
+            <div class="loader"></div>
+            <p>載入中...</p>
+        </div>
+    </div>
+    
+    <script>
+        // 情緒植物資料
+        const emotionPlants = [
+            { name: '怒', color: 0xff4444, emoji: '😡', tip: '離開現場、深呼吸', height: 0.4 },
+            { name: '喜', color: 0x44ff44, emoji: '😊', tip: '分享快樂、記錄美好時刻', height: 0.6 },
+            { name: '悲', color: 0x4444ff, emoji: '😢', tip: '跟人說一句心事、允許自己哭泣', height: 0.3 },
+            { name: '焦', color: 0xffaa44, emoji: '😰', tip: '把事情寫下排序、一次做一件事', height: 0.45 },
+            { name: '平靜', color: 0x44ffaa, emoji: '😌', tip: '保持這個狀態、練習正念冥想', height: 0.5 }
+        ];
+        
+        let scene, camera, renderer;
+        let mindarThree;
+        let anchor;
+        let plantsGroup;
+        let plants = [];
+        let clock;
+        let isTracking = false;
+        let clickedPlants = new Set();
+        
+        async function initAR() {
+            // 初始化 MindAR
+            mindarThree = new window.MINDAR.IMAGE.MindARThree({
+                container: document.querySelector("#mindar-container"),
+                imageTargetSrc: 'targets-3.mind', // 需要您上傳對應的 .mind 文件
+                maxTrack: 1,
+                uiLoading: false,
+                uiScanning: false,
+                uiError: false
+            });
+            
+            const {renderer, scene, camera} = mindarThree;
+            
+            // 設置燈光
+            const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+            scene.add(light);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // 創建錨點
+            anchor = mindarThree.addAnchor(0);
+            plantsGroup = new THREE.Group();
+            anchor.group.add(plantsGroup);
+            
+            // 創建植物
+            createPlants();
+            
+            // 設置時鐘
+            clock = new THREE.Clock();
+            
+            // 開始AR
+            await mindarThree.start();
+            
+            // 隱藏載入畫面
+            document.getElementById('loading').style.display = 'none';
+            
+            // 顯示掃描提示
+            setTimeout(() => {
+                document.getElementById('qrFallback').classList.add('show');
+            }, 5000);
+            
+            // 設置追蹤事件
+            anchor.onTargetFound = () => {
+                console.log("目標找到");
+                isTracking = true;
+                document.getElementById('scanHint').classList.add('hidden');
+                document.getElementById('plantInfo').classList.add('show');
+                startPlantsAnimation();
+            };
+            
+            anchor.onTargetLost = () => {
+                console.log("目標丟失");
+                isTracking = false;
+                document.getElementById('scanHint').classList.remove('hidden');
+                document.getElementById('plantInfo').classList.remove('show');
+            };
+            
+            renderer.setAnimationLoop(() => {
+                if (isTracking) {
+                    animatePlants();
+                }
+                renderer.render(scene, camera);
+            });
+        }
+        
+        function createPlants() {
+            emotionPlants.forEach((plantData, index) => {
+                // 創建植物莖
+                const stemGeometry = new THREE.CylinderGeometry(0.02, 0.03, plantData.height, 8);
+                const stemMaterial = new THREE.MeshPhongMaterial({
+                    color: 0x4a5f3a
+                });
+                const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+                
+                // 創建植物頭部（花朵）
+                const headGeometry = new THREE.SphereGeometry(0.08, 16, 16);
+                const headMaterial = new THREE.MeshPhongMaterial({
+                    color: plantData.color,
+                    emissive: plantData.color,
+                    emissiveIntensity: 0.3
+                });
+                const head = new THREE.Mesh(headGeometry, headMaterial);
+                head.position.y = plantData.height / 2 + 0.08;
+                
+                // 組合植物
+                const plant = new THREE.Group();
+                plant.add(stem);
+                plant.add(head);
+                
+                // 設置位置
+                const angle = (index / emotionPlants.length) * Math.PI * 2;
+                const radius = 0.5;
+                plant.position.x = Math.cos(angle) * radius;
+                plant.position.z = Math.sin(angle) * radius;
+                plant.position.y = 0;
+                
+                // 儲存植物資料
+                plant.userData = {
+                    ...plantData,
+                    index: index,
+                    originalHeight: plantData.height,
+                    clicked: false,
+                    stem: stem,
+                    head: head
+                };
+                
+                plantsGroup.add(plant);
+                plants.push(plant);
+            });
+        }
+        
+        function startPlantsAnimation() {
+            // 植物生長動畫
+            plants.forEach((plant, index) => {
+                setTimeout(() => {
+                    growPlant(plant);
+                }, index * 300);
+            });
+        }
+        
+        function growPlant(plant) {
+            const targetScale = 1;
+            const duration = 1000;
+            const startTime = Date.now();
+            const startScale = 0.1;
+            
+            plant.scale.set(startScale, startScale, startScale);
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 緩動函數
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentScale = startScale + (targetScale - startScale) * easeOut;
+                
+                plant.scale.set(currentScale, currentScale, currentScale);
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            animate();
+        }
+        
+        function animatePlants() {
+            const time = clock.getElapsedTime();
+            
+            plants.forEach((plant, index) => {
+                const userData = plant.userData;
+                
+                // 不同情緒的不同動畫
+                switch(userData.name) {
+                    case '怒':
+                        // 顫抖動畫
+                        plant.rotation.z = Math.sin(time * 10 + index) * 0.05;
+                        break;
+                    case '喜':
+                        // 彈跳動畫
+                        plant.position.y = Math.abs(Math.sin(time * 2 + index)) * 0.1;
+                        break;
+                    case '悲':
+                        // 下垂動畫
+                        plant.rotation.x = Math.sin(time + index) * 0.1 + 0.1;
+                        break;
+                    case '焦':
+                        // 快速搖擺
+                        plant.rotation.z = Math.sin(time * 5 + index) * 0.1;
+                        break;
+                    case '平靜':
+                        // 緩慢呼吸
+                        const breathe = 1 + Math.sin(time + index) * 0.05;
+                        plant.scale.set(breathe, breathe, breathe);
+                        break;
+                }
+                
+                // 已點擊的植物發光
+                if (userData.clicked) {
+                    userData.head.material.emissiveIntensity = 0.5 + Math.sin(time * 3) * 0.2;
+                }
+            });
+        }
+        
+        // Raycaster 處理點擊
+        function setupInteraction() {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            
+            document.addEventListener('click', (event) => {
+                if (!isTracking) return;
+                
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                
+                // 檢查植物點擊
+                const intersects = raycaster.intersectObjects(plantsGroup.children, true);
+                
+                if (intersects.length > 0) {
+                    // 找到被點擊的植物
+                    let clickedPlant = intersects[0].object;
+                    while (clickedPlant.parent && !clickedPlant.userData.name) {
+                        clickedPlant = clickedPlant.parent;
+                    }
+                    
+                    if (clickedPlant.userData.name) {
+                        handlePlantClick(clickedPlant);
+                    }
+                }
+            });
+        }
+        
+        function handlePlantClick(plant) {
+            const userData = plant.userData;
+            
+            if (!userData.clicked) {
+                userData.clicked = true;
+                clickedPlants.add(userData.name);
+                
+                // 顯示調節提示
+                showEmotionTip(userData.name, userData.emoji, userData.tip);
+                
+                // 植物反應動畫
+                const scaleAnimation = () => {
+                    const duration = 500;
+                    const startTime = Date.now();
+                    const startScale = plant.scale.x;
+                    const targetScale = startScale * 1.3;
+                    
+                    function animate() {
+                        const elapsed = Date.now() - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        
+                        if (progress < 0.5) {
+                            const scale = startScale + (targetScale - startScale) * (progress * 2);
+                            plant.scale.set(scale, scale, scale);
+                        } else {
+                            const scale = targetScale - (targetScale - startScale) * ((progress - 0.5) * 2);
+                            plant.scale.set(scale, scale, scale);
+                        }
+                        
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        }
+                    }
+                    
+                    animate();
+                };
+                
+                scaleAnimation();
+                
+                // 檢查是否所有植物都被點擊
+                if (clickedPlants.size === emotionPlants.length) {
+                    setTimeout(() => {
+                        document.getElementById('plantInfo').classList.remove('show');
+                        document.getElementById('questionBox').classList.add('show');
+                    }, 2000);
+                }
+            }
+        }
+        
+        function showEmotionTip(name, emoji, tip) {
+            document.getElementById('tipEmoji').textContent = emoji;
+            document.getElementById('tipTitle').textContent = `${name}的調節方法`;
+            document.getElementById('tipContent').textContent = tip;
+            document.getElementById('emotionTip').classList.add('show');
+        }
+        
+        function closeTip() {
+            document.getElementById('emotionTip').classList.remove('show');
+        }
+        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initAR();
+                setupInteraction();
+            } catch (error) {
+                console.error('AR 初始化失敗:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<p style="color: red;">AR 載入失敗<br>請確認相機權限已開啟</p>' +
+                    '<a href="sel-3-direct.html" style="color: #667eea; margin-top: 20px; display: inline-block;">直接觀看動畫 →</a>';
+            }
         });
-
-        renderer.render(scene, camera);
-      });
-    };
-
-    startAR();
-  </script>
+    </script>
 </body>
 </html>

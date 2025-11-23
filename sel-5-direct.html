@@ -5,135 +5,372 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>黑夜裡的小燈塔 - 直接觀看</title>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family:'Microsoft JhengHei', Arial, sans-serif;
-            background:linear-gradient(135deg,#0d47a1 0%,#263238 100%);
-            min-height:100vh;
-            display:flex; flex-direction:column; align-items:center;
-            color:white;
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+        
         .header {
-            width:100%; background:rgba(0,0,0,0.4); padding:20px;
-            box-shadow:0 2px 10px rgba(0,0,0,0.4);
-            text-align:center; position:relative;
+            width: 100%;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
         }
+        
         .back-btn {
-            position:absolute; left:20px; top:50%; transform:translateY(-50%);
-            padding:10px 20px; background:#ffca28; color:#333;
-            border-radius:25px; text-decoration:none; font-weight:bold;
-            transition:all 0.3s ease;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
         }
-        .back-btn:hover { background:#ffc107; transform:translateY(-50%) scale(1.05); }
-        h1 { font-size:1.8rem; }
-        .subtitle { color:#eee; margin-top:5px; }
-
+        
+        .back-btn:hover {
+            background: #764ba2;
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 1.8rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-top: 5px;
+        }
+        
         .main-container {
-            flex:1; width:100%; max-width:1000px; padding:20px;
-            display:flex; flex-direction:column; align-items:center;
+            flex: 1;
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
+        
         .image-container {
-            position:relative; width:100%; max-width:600px; height:500px;
-            background:#00162b; border-radius:20px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.6);
-            margin:20px 0; overflow:hidden;
-            display:flex; align-items:center; justify-content:center;
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            height: 500px;
+            background: linear-gradient(to bottom, #0a1929 0%, #1e3c72 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin: 20px 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+        
         .illustration {
-            width:100%; height:100%; object-fit:contain; padding:20px;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 20px;
+            z-index: 1;
+            position: relative;
         }
-
-        .sea {
-            position:absolute; bottom:0; left:0; right:0;
-            height:35%; background:linear-gradient(to top,#01579b,#0277bd);
-            overflow:hidden;
+        
+        /* 海浪效果 */
+        .waves {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
         }
+        
         .wave {
-            position:absolute; left:-50%; width:200%; height:50%;
-            background:radial-gradient(circle at 50% 0, rgba(255,255,255,0.3), transparent 60%);
-            opacity:0.5; animation:waveMove 6s linear infinite;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%231e3c72' fill-opacity='0.5' d='M0,96L60,112C120,128,240,160,360,160C480,160,600,128,720,122.7C840,117,960,139,1080,133.3C1200,128,1320,96,1380,80L1440,64L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z'%3E%3C/path%3E%3C/svg%3E") repeat-x;
+            animation: wave 10s linear infinite;
         }
-        .wave.wave2 { top:-10%; opacity:0.3; animation-duration:8s; }
-
-        @keyframes waveMove {
-            from { transform:translateX(0); }
-            to   { transform:translateX(50%); }
+        
+        .wave:nth-child(2) {
+            opacity: 0.7;
+            animation-duration: 15s;
+            animation-delay: -5s;
         }
-
+        
+        .wave:nth-child(3) {
+            opacity: 0.5;
+            animation-duration: 20s;
+            animation-delay: -10s;
+        }
+        
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        /* 船 */
+        .boat {
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3rem;
+            animation: float 4s ease-in-out infinite;
+            cursor: pointer;
+            z-index: 5;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0) rotate(-5deg); }
+            50% { transform: translateX(-50%) translateY(-10px) rotate(5deg); }
+        }
+        
+        /* 燈塔 */
         .lighthouse {
-            position:absolute; bottom:20%; left:15%;
-            width:60px; height:140px; cursor:pointer;
-            display:flex; flex-direction:column; align-items:center;
+            position: absolute;
+            top: 20%;
+            right: 15%;
+            font-size: 2.5rem;
+            cursor: pointer;
+            z-index: 5;
+            transition: all 0.3s ease;
         }
-        .tower {
-            width:36px; height:100px; background:#eeeeee;
-            border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.7);
+        
+        .lighthouse-light {
+            position: absolute;
+            top: 20%;
+            right: 15%;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255,255,200,0.8) 0%, rgba(255,255,200,0) 70%);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: pulse 3s ease-in-out infinite;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            z-index: 4;
         }
-        .top {
-            width:50px; height:24px; background:#ffca28;
-            border-radius:50px 50px 5px 5px;
-            box-shadow:0 0 15px rgba(255, 235, 59, 0.8);
-            transition:box-shadow 0.4s ease, background 0.4s ease;
+        
+        .lighthouse-light.bright {
+            width: 300px;
+            height: 300px;
+            opacity: 0.8;
+            background: radial-gradient(circle, rgba(255,255,200,0.9) 0%, rgba(255,255,200,0.4) 40%, rgba(255,255,200,0) 70%);
         }
-        .beam {
-            position:absolute; top:10%; left:28%;
-            width:0; height:0;
-            border-top:60px solid rgba(255, 241, 118, 0.0);
-            border-bottom:60px solid rgba(255, 241, 118, 0.0);
-            border-left:220px solid rgba(255, 241, 118, 0.2);
-            filter:blur(2px);
-            opacity:0;
-            transition:opacity 0.4s ease;
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
-        .lighthouse.on .top {
-            background:#fff59d;
-            box-shadow:0 0 25px rgba(255, 255, 141, 1);
+        
+        /* 光線路徑 */
+        .light-path {
+            position: absolute;
+            top: 30%;
+            right: 20%;
+            width: 2px;
+            height: 0;
+            background: linear-gradient(to bottom, rgba(255,255,200,0.8), rgba(255,255,200,0));
+            transform: rotate(45deg);
+            transform-origin: top;
+            transition: height 1s ease;
+            z-index: 3;
         }
-        .lighthouse.on ~ .beam {
-            opacity:1;
+        
+        .light-path.show {
+            height: 250px;
         }
-
+        
+        /* 支持者圖標 */
+        .support-person {
+            position: absolute;
+            font-size: 1.8rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.5s ease;
+            z-index: 5;
+        }
+        
+        .support-person.show {
+            opacity: 1;
+        }
+        
+        .support-person:hover {
+            transform: scale(1.2);
+        }
+        
+        .person-1 { top: 60%; left: 20%; animation-delay: 0.5s; }
+        .person-2 { top: 50%; right: 40%; animation-delay: 1s; }
+        .person-3 { bottom: 20%; left: 40%; animation-delay: 1.5s; }
+        .person-4 { top: 40%; left: 35%; animation-delay: 2s; }
+        
         .start-btn {
-            background:linear-gradient(135deg,#ffca28,#ffb300);
-            color:#212121; border:none; padding:15px 40px;
-            border-radius:30px; font-size:1.1rem; font-weight:bold;
-            cursor:pointer; transition:all 0.3s ease;
-            box-shadow:0 5px 15px rgba(255,202,40,0.4);
-            margin:20px 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            margin: 20px 0;
         }
-        .start-btn:hover { transform:scale(1.05); box-shadow:0 10px 25px rgba(255,202,40,0.6); }
-
+        
+        .start-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* 提示卡片 */
+        .support-tooltip {
+            position: fixed;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            max-width: 200px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+        
+        .support-tooltip.show {
+            opacity: 1;
+        }
+        
+        .support-tooltip h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .support-tooltip p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
         .message-popup {
-            position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-            background:#ffca28; color:#212121;
-            padding:20px 30px; border-radius:15px;
-            font-size:1.05rem; text-align:center;
-            opacity:0; pointer-events:none; transition:opacity 0.5s ease;
-            z-index:100; max-width:80%;
-            box-shadow:0 10px 30px rgba(0,0,0,0.6);
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 100;
+            max-width: 80%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        .message-popup.show { opacity:1; }
-
+        
+        .message-popup.show {
+            opacity: 1;
+        }
+        
         .question-section {
-            width:100%; max-width:600px;
-            background:rgba(0,0,0,0.7); color:white;
-            padding:30px; border-radius:20px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.6);
-            margin-top:20px; display:none;
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            display: none;
         }
-        .question-section.show { display:block; animation:slideIn 0.5s ease; }
-        .question-section h2 { margin-bottom:20px; font-size:1.5rem; }
-        .question-section ol { line-height:1.8; padding-left:20px; }
-        .question-section li { margin-bottom:15px; }
-
+        
+        .question-section.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+        
         @keyframes slideIn {
-            from { opacity:0; transform:translateY(20px); }
-            to   { opacity:1; transform:translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        @media (max-width:768px){
-            .back-btn{ position:static; transform:none; margin-bottom:10px; }
-            h1{ font-size:1.5rem; margin-top:10px; }
-            .image-container{ height:400px; }
+        
+        .question-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .question-section ol {
+            color: #555;
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        
+        .question-section li {
+            margin-bottom: 15px;
+        }
+        
+        /* 星星背景 */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .lighthouse {
+                font-size: 2rem;
+            }
+            
+            .boat {
+                font-size: 2.5rem;
+            }
+            
+            .support-person {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -141,81 +378,229 @@
     <div class="header">
         <a href="index.html" class="back-btn">← 返回選單</a>
         <h1>黑夜裡的小燈塔</h1>
-        <p class="subtitle">Seeking Help（求助與支持）</p>
+        <p class="subtitle">求助與支持 (Seeking Help)</p>
     </div>
-
+    
     <div class="main-container">
-        <button class="start-btn" id="startBtn">點亮你的小燈塔</button>
-
-        <div class="image-container">
+        <button class="start-btn" id="startBtn">開始體驗</button>
+        
+        <div class="image-container" id="imageContainer">
+            <!-- 星星背景 -->
+            <div class="stars" id="stars"></div>
+            
+            <!-- 這裡應該放置您的插畫圖片 sel-5.png -->
             <img src="sel-5.png" alt="黑夜裡的小燈塔" class="illustration">
-
-            <div class="sea">
-                <div class="wave wave1"></div>
-                <div class="wave wave2"></div>
+            
+            <!-- 海浪 -->
+            <div class="waves">
+                <div class="wave"></div>
+                <div class="wave"></div>
+                <div class="wave"></div>
             </div>
-
-            <div class="lighthouse" id="lighthouse">
-                <div class="tower"></div>
-                <div class="top"></div>
-            </div>
-            <div class="beam" id="beam"></div>
+            
+            <!-- 船 -->
+            <div class="boat" id="boat">⛵</div>
+            
+            <!-- 燈塔 -->
+            <div class="lighthouse" id="lighthouse">🏮</div>
+            <div class="lighthouse-light" id="lighthouseLight"></div>
+            <div class="light-path" id="lightPath"></div>
+            
+            <!-- 支持者 -->
+            <div class="support-person person-1" data-person="家人" data-desc="永遠的避風港">👨‍👩‍👧</div>
+            <div class="support-person person-2" data-person="朋友" data-desc="陪伴與理解">👫</div>
+            <div class="support-person person-3" data-person="老師" data-desc="引導與支持">👩‍🏫</div>
+            <div class="support-person person-4" data-person="專業人士" data-desc="專業的協助">👨‍⚕️</div>
         </div>
-
+        
+        <!-- 支持者提示 -->
+        <div class="support-tooltip" id="supportTooltip">
+            <h4 id="tooltipTitle">支持者</h4>
+            <p id="tooltipContent">說明</p>
+        </div>
+        
         <div class="message-popup" id="messagePopup"></div>
-
+        
         <div class="question-section" id="questionSection">
             <h2>🤔 思考引導</h2>
             <ol>
-                <li>最近一次你真的很想求助，卻沒有說出口，是什麼時候？發生了什麼事？</li>
-                <li>在你的生命中，有哪些人或地方，可以成為你的「小燈塔」？（師長、朋友、家人、諮商中心……）</li>
-                <li>如果下一次你再遇到困難，你願意試著對誰說出第一句話？那句話可能會是什麼？</li>
+                <li>最近一次你真的想求助卻沒說出口是什麼時候？</li>
+                <li>你身邊有哪些「值得信任的人」？</li>
+                <li>如果你願意，下一次想把哪句話說出來？</li>
             </ol>
         </div>
     </div>
-
+    
     <script>
         const startBtn = document.getElementById('startBtn');
         const lighthouse = document.getElementById('lighthouse');
-        const beam = document.getElementById('beam');
+        const lighthouseLight = document.getElementById('lighthouseLight');
+        const lightPath = document.getElementById('lightPath');
+        const boat = document.getElementById('boat');
+        const supportPeople = document.querySelectorAll('.support-person');
         const messagePopup = document.getElementById('messagePopup');
+        const supportTooltip = document.getElementById('supportTooltip');
         const questionSection = document.getElementById('questionSection');
-        let clickedTimes = 0;
-        let started = false;
-
+        const stars = document.getElementById('stars');
+        
+        let animationStarted = false;
+        let lighthouseClicked = false;
+        let supportersFound = new Set();
+        
+        // 創建星星背景
+        function createStars() {
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 50 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                stars.appendChild(star);
+            }
+        }
+        
+        // 開始按鈕點擊事件
         startBtn.addEventListener('click', () => {
+            startAnimation();
             startBtn.style.display = 'none';
-            started = true;
-            showMessage("試著點一下燈塔，把光打開。");
         });
-
+        
+        function startAnimation() {
+            if (animationStarted) return;
+            animationStarted = true;
+            
+            // 創建星星
+            createStars();
+            
+            // 顯示初始訊息
+            showMessage("在黑暗中，點擊燈塔尋找光明");
+        }
+        
+        // 燈塔點擊事件
         lighthouse.addEventListener('click', () => {
-            if (!started) return;
-            lighthouse.classList.toggle('on');
-            if (lighthouse.classList.contains('on')) {
-                showMessage("當你願意開口求助時，世界上會多出一盞為你亮的燈。");
-                clickedTimes++;
-            } else {
-                showMessage("燈會暫時熄滅，但只要你願意，它隨時可以再亮起來。");
-            }
-
-            if (clickedTimes >= 2) {
+            if (!animationStarted) return;
+            
+            if (!lighthouseClicked) {
+                lighthouseClicked = true;
+                
+                // 燈光變亮
+                lighthouseLight.classList.add('bright');
+                lightPath.classList.add('show');
+                
+                // 顯示訊息
+                showMessage("你的生命中有哪些燈塔？");
+                
+                // 顯示支持者
                 setTimeout(() => {
-                    questionSection.classList.add('show');
-                }, 800);
+                    supportPeople.forEach((person, index) => {
+                        setTimeout(() => {
+                            person.classList.add('show');
+                        }, index * 500);
+                    });
+                    
+                    setTimeout(() => {
+                        showMessage("點擊了解你的支持系統");
+                    }, 2500);
+                }, 2000);
             }
         });
-
+        
+        // 支持者點擊事件
+        supportPeople.forEach(person => {
+            person.addEventListener('click', (e) => {
+                const name = person.getAttribute('data-person');
+                const desc = person.getAttribute('data-desc');
+                
+                // 記錄找到的支持者
+                supportersFound.add(name);
+                
+                // 顯示提示
+                showSupportTooltip(e, name, desc);
+                
+                // 發光效果
+                person.style.filter = 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.8))';
+                
+                // 檢查是否所有支持者都被找到
+                if (supportersFound.size === supportPeople.length) {
+                    setTimeout(() => {
+                        showMessage("當你需要幫助時，誰是你願意去找的人？");
+                        setTimeout(() => {
+                            questionSection.classList.add('show');
+                        }, 3500);
+                    }, 1500);
+                }
+            });
+            
+            person.addEventListener('mouseenter', (e) => {
+                if (supportersFound.has(person.getAttribute('data-person'))) {
+                    const name = person.getAttribute('data-person');
+                    const desc = person.getAttribute('data-desc');
+                    showSupportTooltip(e, name, desc);
+                }
+            });
+            
+            person.addEventListener('mouseleave', () => {
+                hideSupportTooltip();
+            });
+        });
+        
+        // 船點擊事件
+        boat.addEventListener('click', () => {
+            if (!animationStarted) return;
+            
+            // 船移動向燈塔
+            boat.style.animation = 'moveToLighthouse 3s ease forwards';
+            
+            setTimeout(() => {
+                showMessage("你正在航向光明");
+            }, 1000);
+        });
+        
         function showMessage(message) {
             messagePopup.textContent = message;
             messagePopup.classList.add('show');
+            
             setTimeout(() => {
                 messagePopup.classList.remove('show');
             }, 3000);
         }
-
+        
+        function showSupportTooltip(event, title, content) {
+            document.getElementById('tooltipTitle').textContent = title;
+            document.getElementById('tooltipContent').textContent = content;
+            
+            // 設置位置
+            supportTooltip.style.left = event.pageX + 20 + 'px';
+            supportTooltip.style.top = event.pageY - 50 + 'px';
+            
+            supportTooltip.classList.add('show');
+        }
+        
+        function hideSupportTooltip() {
+            supportTooltip.classList.remove('show');
+        }
+        
+        // 添加船移動動畫
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes moveToLighthouse {
+                0% {
+                    bottom: 150px;
+                    left: 50%;
+                }
+                100% {
+                    bottom: 250px;
+                    left: 70%;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // 頁面載入完成後的初始化
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('黑夜裡的小燈塔頁面載入完成');
+            console.log('頁面已載入完成');
         });
     </script>
 </body>

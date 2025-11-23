@@ -1,190 +1,681 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>SEL 卡片 4 ─ 兩條路的十字路口（動畫版）</title>
-
-  <!-- MindAR + ThreeJS -->
-  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.3/dist/mindar-image-three.prod.js"></script>
-
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      font-family: "Microsoft JhengHei", Arial, sans-serif;
-    }
-    #mindar-container {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-    }
-    #messageBox, #questionBox {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.65);
-      color: white;
-      padding: 14px 22px;
-      border-radius: 14px;
-      opacity: 0;
-      transition: opacity 0.4s;
-      text-align: center;
-      z-index: 999;
-      width: 80%;
-      max-width: 430px;
-      line-height: 1.5;
-    }
-    #messageBox { top: 10vh; }
-    #questionBox { bottom: 8vh; font-size: 0.95rem; }
-
-    /* 進場動畫（淡入＋上浮） */
-    @keyframes appearUp {
-      0%   { opacity: 0; transform: translateY(0.2); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-  </style>
-</head>
-
-<body>
-  <div id="mindar-container"></div>
-
-  <!-- 上方訊息 -->
-  <div id="messageBox"></div>
-
-  <!-- 下方反思 -->
-  <div id="questionBox">
-    <b>思考引導：</b><br><br>
-    ● 最近讓你卡住的選擇是什麼？<br>
-    ● 做決定時，你最在乎的是誰的期待？<br>
-    ● 如果「不會失敗」，你會選哪一條路？
-  </div>
-
-  <script type="module">
-    const messageBox = document.getElementById("messageBox");
-    const questionBox = document.getElementById("questionBox");
-
-    const choiceMessages = [
-      "成績／學習：辛苦，但會累積你的實力。",
-      "手機娛樂：能讓你放鬆，但要小心被時間偷走。",
-      "朋友：陪伴重要，但選擇依然要忠於自己。",
-      "價值／初心：真正想守護的，未必被大家理解。",
-      "安全圈：舒服安穩，但可能離夢想更遠。",
-      "夢想：不確定，但最貼近真正的你。"
-    ];
-
-    let clickCount = 0;
-
-    function showMessage(text) {
-      messageBox.innerText = text;
-      messageBox.style.opacity = 1;
-      setTimeout(() => { messageBox.style.opacity = 0; }, 2800);
-    }
-
-    function tryShowQuestions() {
-      if (clickCount >= 3) {
-        questionBox.style.opacity = 1;
-      }
-    }
-
-    // ----------------------- 啟動 AR -----------------------
-    const startAR = async () => {
-      const mindarThree = new window.MINDAR.IMAGE.MindARThree({
-        container: document.querySelector("#mindar-container"),
-        imageTargetSrc: "targets-4.mind",
-      });
-
-      const { renderer, scene, camera } = mindarThree;
-      const anchor = mindarThree.addAnchor(0);
-
-      // 光源
-      const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1.2);
-      scene.add(light);
-
-      // 六個泡泡
-      const bubbles = [];
-      const geo = new THREE.SphereGeometry(0.18, 32, 32);
-      const baseMat = new THREE.MeshStandardMaterial({
-        transparent: true,
-        opacity: 0
-      });
-
-      const positions = [
-        [-0.6,  0.25],
-        [ 0.6,  0.25],
-        [-0.6, -0.2],
-        [ 0.6, -0.2],
-        [-0.2,  0.05],
-        [ 0.2,  0.05],
-      ];
-
-      const colors = [
-        0xffc966, 0x66bbff, 0xff7777,
-        0x99dd99, 0xcccccc, 0xffee66
-      ];
-
-      for (let i = 0; i < 6; i++) {
-        const bubble = new THREE.Mesh(geo, baseMat.clone());
-        bubble.position.set(positions[i][0], positions[i][1], 0);
-        bubble.material.color.setHex(colors[i]);
-        bubble.userData.index = i;
-
-        anchor.group.add(bubble);
-        bubbles.push(bubble);
-      }
-
-      // 進場動畫：依序淡入
-      bubbles.forEach((b, i) => {
-        setTimeout(() => {
-          b.material.opacity = 0.6;
-        }, i * 350);
-      });
-
-      // 點擊偵測
-      const raycaster = new THREE.Raycaster();
-      const mouse = new THREE.Vector2();
-
-      window.addEventListener("click", (e) => {
-        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, camera);
-        const hit = raycaster.intersectObjects(bubbles);
-
-        if (hit.length > 0) {
-          const obj = hit[0].object;
-          const idx = obj.userData.index;
-
-          // 顯示訊息
-          showMessage(choiceMessages[idx]);
-
-          // 點擊動畫：放大 → 縮小 → 淡出
-          obj.scale.set(1.3, 1.3, 1.3);
-
-          setTimeout(() => {
-            obj.scale.set(0.5, 0.5, 0.5);
-            obj.material.opacity = 0;
-          }, 180);
-
-          clickCount++;
-          tryShowQuestions();
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兩條路的十字路口 - AR體驗</title>
+    
+    <!-- Mind AR 1.1.3 -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.3/dist/mindar-image-three.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/build/three.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-      });
-
-      // 動畫 loop
-      await mindarThree.start();
-      renderer.setAnimationLoop(() => {
-        bubbles.forEach((b, i) => {
-          b.position.y += Math.sin(Date.now() * 0.001 + i) * 0.00045;
+        
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            overflow: hidden;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #mindar-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            color: #667eea;
+            font-weight: bold;
+            text-decoration: none;
+            pointer-events: all;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .scan-hint {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            text-align: center;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .scan-hint.hidden {
+            opacity: 0;
+        }
+        
+        .path-info {
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px;
+            border-radius: 20px;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            max-width: 90%;
+            display: flex;
+            gap: 20px;
+        }
+        
+        .path-info.show {
+            opacity: 1;
+        }
+        
+        .path-option {
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+        
+        .path-a {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+        }
+        
+        .path-b {
+            background: linear-gradient(135deg, #87ceeb, #98d8f4);
+        }
+        
+        .item-tooltip {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 80%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 50;
+        }
+        
+        .item-tooltip.show {
+            opacity: 1;
+        }
+        
+        .item-tooltip h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .item-tooltip p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .message-popup {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+            z-index: 50;
+            max-width: 80%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .message-popup.show {
+            opacity: 1;
+        }
+        
+        .question-box {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .question-box.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .question-box h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .question-box ol {
+            text-align: left;
+            color: #555;
+            line-height: 1.8;
+            padding-left: 20px;
+        }
+        
+        .question-box li {
+            margin-bottom: 10px;
+        }
+        
+        .qr-fallback {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 10px;
+            pointer-events: all;
+            z-index: 100;
+            display: none;
+        }
+        
+        .qr-fallback.show {
+            display: block;
+        }
+        
+        .qr-fallback a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #667eea;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="mindar-container"></div>
+        
+        <div class="ui-overlay">
+            <a href="index.html" class="back-btn">← 返回選單</a>
+            
+            <div class="scan-hint" id="scanHint">
+                📱 請將相機對準「兩條路的十字路口」插畫圖片
+            </div>
+            
+            <div class="path-info" id="pathInfo">
+                <div class="path-option path-a">
+                    <strong>A路</strong><br>
+                    輕鬆但走不遠
+                </div>
+                <div class="path-option path-b">
+                    <strong>B路</strong><br>
+                    有挑戰但通向光明
+                </div>
+            </div>
+            
+            <div class="item-tooltip" id="itemTooltip">
+                <h3 id="tooltipTitle">物件</h3>
+                <p id="tooltipContent">象徵意義</p>
+            </div>
+            
+            <div class="message-popup" id="messagePopup"></div>
+            
+            <div class="question-box" id="questionBox">
+                <h3>🤔 思考引導</h3>
+                <ol>
+                    <li>最近讓你卡住的選擇是什麼？</li>
+                    <li>你做決定時最看重什麼？（舒適 / 安全 / 成績 / 別人的期待 / 自己的夢想）</li>
+                    <li>如果沒有失敗，你最想走哪條路？</li>
+                </ol>
+            </div>
+            
+            <div class="qr-fallback" id="qrFallback">
+                <p>掃描有困難嗎？</p>
+                <a href="sel-4-direct.html">直接觀看動畫 →</a>
+            </div>
+        </div>
+        
+        <div id="loading">
+            <div class="loader"></div>
+            <p>載入中...</p>
+        </div>
+    </div>
+    
+    <script>
+        // 物件資料
+        const items = [
+            { name: '書本', emoji: '📚', meaning: '知識與學習的追求', position: {x: -0.3, y: 0.2, z: 0} },
+            { name: '手機', emoji: '📱', meaning: '連結與即時滿足', position: {x: 0.3, y: 0.2, z: 0} },
+            { name: '心', emoji: '❤️', meaning: '內心的聲音與感受', position: {x: 0, y: 0, z: 0} },
+            { name: '好友', emoji: '👥', meaning: '人際關係與陪伴', position: {x: -0.3, y: -0.2, z: 0} },
+            { name: '夢想', emoji: '✨', meaning: '理想與未來願景', position: {x: 0.3, y: -0.2, z: 0} }
+        ];
+        
+        let scene, camera, renderer;
+        let mindarThree;
+        let anchor;
+        let pathsGroup, itemsGroup;
+        let clock;
+        let isTracking = false;
+        let clickedItems = new Set();
+        
+        async function initAR() {
+            // 初始化 MindAR
+            mindarThree = new window.MINDAR.IMAGE.MindARThree({
+                container: document.querySelector("#mindar-container"),
+                imageTargetSrc: 'targets-4.mind', // 需要您上傳對應的 .mind 文件
+                maxTrack: 1,
+                uiLoading: false,
+                uiScanning: false,
+                uiError: false
+            });
+            
+            const {renderer, scene, camera} = mindarThree;
+            
+            // 設置燈光
+            const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+            scene.add(light);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            // 創建錨點
+            anchor = mindarThree.addAnchor(0);
+            
+            // 創建路徑和物件群組
+            pathsGroup = new THREE.Group();
+            itemsGroup = new THREE.Group();
+            anchor.group.add(pathsGroup);
+            anchor.group.add(itemsGroup);
+            
+            // 創建兩條路徑
+            createPaths();
+            
+            // 創建物件
+            createItems();
+            
+            // 設置時鐘
+            clock = new THREE.Clock();
+            
+            // 開始AR
+            await mindarThree.start();
+            
+            // 隱藏載入畫面
+            document.getElementById('loading').style.display = 'none';
+            
+            // 顯示掃描提示
+            setTimeout(() => {
+                document.getElementById('qrFallback').classList.add('show');
+            }, 5000);
+            
+            // 設置追蹤事件
+            anchor.onTargetFound = () => {
+                console.log("目標找到");
+                isTracking = true;
+                document.getElementById('scanHint').classList.add('hidden');
+                document.getElementById('pathInfo').classList.add('show');
+                startAnimation();
+            };
+            
+            anchor.onTargetLost = () => {
+                console.log("目標丟失");
+                isTracking = false;
+                document.getElementById('scanHint').classList.remove('hidden');
+                document.getElementById('pathInfo').classList.remove('show');
+            };
+            
+            renderer.setAnimationLoop(() => {
+                if (isTracking) {
+                    animateScene();
+                }
+                renderer.render(scene, camera);
+            });
+        }
+        
+        function createPaths() {
+            // 創建A路徑（黃色，輕鬆）
+            const pathACurve = new THREE.QuadraticBezierCurve3(
+                new THREE.Vector3(0, -0.3, 0),
+                new THREE.Vector3(-0.3, 0, 0),
+                new THREE.Vector3(-0.5, 0.3, 0)
+            );
+            
+            const pathAGeometry = new THREE.TubeGeometry(pathACurve, 20, 0.02, 8, false);
+            const pathAMaterial = new THREE.MeshPhongMaterial({
+                color: 0xffd700,
+                emissive: 0xffd700,
+                emissiveIntensity: 0.3
+            });
+            const pathA = new THREE.Mesh(pathAGeometry, pathAMaterial);
+            pathsGroup.add(pathA);
+            
+            // 創建B路徑（藍色，成長）
+            const pathBCurve = new THREE.QuadraticBezierCurve3(
+                new THREE.Vector3(0, -0.3, 0),
+                new THREE.Vector3(0.3, 0, 0),
+                new THREE.Vector3(0.5, 0.3, 0)
+            );
+            
+            const pathBGeometry = new THREE.TubeGeometry(pathBCurve, 20, 0.02, 8, false);
+            const pathBMaterial = new THREE.MeshPhongMaterial({
+                color: 0x87ceeb,
+                emissive: 0x87ceeb,
+                emissiveIntensity: 0.3
+            });
+            const pathB = new THREE.Mesh(pathBGeometry, pathBMaterial);
+            pathsGroup.add(pathB);
+        }
+        
+        function createItems() {
+            items.forEach((itemData, index) => {
+                // 創建物件容器
+                const itemGroup = new THREE.Group();
+                
+                // 創建物件形狀（簡單的立方體）
+                const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+                const material = new THREE.MeshPhongMaterial({
+                    color: 0xffffff,
+                    emissive: 0x667eea,
+                    emissiveIntensity: 0.3
+                });
+                const mesh = new THREE.Mesh(geometry, material);
+                
+                // 創建文字標籤
+                const canvas = document.createElement('canvas');
+                canvas.width = 256;
+                canvas.height = 256;
+                const context = canvas.getContext('2d');
+                context.fillStyle = 'white';
+                context.fillRect(0, 0, 256, 256);
+                context.fillStyle = '#333';
+                context.font = 'bold 120px Arial';
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                context.fillText(itemData.emoji, 128, 128);
+                
+                const texture = new THREE.CanvasTexture(canvas);
+                const labelMaterial = new THREE.MeshBasicMaterial({
+                    map: texture,
+                    transparent: true
+                });
+                const labelMesh = new THREE.Mesh(
+                    new THREE.PlaneGeometry(0.15, 0.15),
+                    labelMaterial
+                );
+                labelMesh.position.z = 0.06;
+                
+                itemGroup.add(mesh);
+                itemGroup.add(labelMesh);
+                
+                // 設置位置
+                itemGroup.position.set(
+                    itemData.position.x,
+                    itemData.position.y,
+                    itemData.position.z
+                );
+                
+                // 儲存物件資料
+                itemGroup.userData = {
+                    ...itemData,
+                    index: index,
+                    clicked: false
+                };
+                
+                itemsGroup.add(itemGroup);
+            });
+        }
+        
+        function startAnimation() {
+            // 路徑漸現動畫
+            pathsGroup.children.forEach((path, index) => {
+                path.material.opacity = 0;
+                path.material.transparent = true;
+                
+                const fadeIn = () => {
+                    const duration = 2000;
+                    const startTime = Date.now();
+                    
+                    function animate() {
+                        const elapsed = Date.now() - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        
+                        path.material.opacity = progress;
+                        
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        }
+                    }
+                    
+                    animate();
+                };
+                
+                setTimeout(fadeIn, index * 500);
+            });
+            
+            // 物件出現動畫
+            itemsGroup.children.forEach((item, index) => {
+                item.scale.set(0, 0, 0);
+                
+                setTimeout(() => {
+                    const duration = 500;
+                    const startTime = Date.now();
+                    
+                    function animate() {
+                        const elapsed = Date.now() - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        
+                        const scale = progress;
+                        item.scale.set(scale, scale, scale);
+                        
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        }
+                    }
+                    
+                    animate();
+                }, 1000 + index * 200);
+            });
+            
+            // 顯示訊息
+            setTimeout(() => {
+                showMessage("點擊物件了解它們的象徵意義");
+            }, 3000);
+        }
+        
+        function animateScene() {
+            const time = clock.getElapsedTime();
+            
+            // 物件漂浮動畫
+            itemsGroup.children.forEach((item, index) => {
+                item.position.y = item.userData.position.y + Math.sin(time * 2 + index) * 0.02;
+                item.rotation.y = time * 0.5;
+                
+                // 已點擊的物件發光
+                if (item.userData.clicked) {
+                    const mesh = item.children[0];
+                    mesh.material.emissiveIntensity = 0.5 + Math.sin(time * 3) * 0.2;
+                }
+            });
+            
+            // 路徑脈動效果
+            pathsGroup.children.forEach((path, index) => {
+                path.material.emissiveIntensity = 0.3 + Math.sin(time * 2 + index * Math.PI) * 0.2;
+            });
+        }
+        
+        // Raycaster 處理點擊
+        function setupInteraction() {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            
+            document.addEventListener('click', (event) => {
+                if (!isTracking) return;
+                
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                
+                raycaster.setFromCamera(mouse, camera);
+                
+                // 檢查物件點擊
+                const intersects = raycaster.intersectObjects(itemsGroup.children, true);
+                
+                if (intersects.length > 0) {
+                    // 找到被點擊的物件
+                    let clickedItem = intersects[0].object;
+                    while (clickedItem.parent && !clickedItem.userData.name) {
+                        clickedItem = clickedItem.parent;
+                    }
+                    
+                    if (clickedItem.userData.name) {
+                        handleItemClick(clickedItem);
+                    }
+                }
+            });
+        }
+        
+        function handleItemClick(item) {
+            const userData = item.userData;
+            
+            if (!userData.clicked) {
+                userData.clicked = true;
+                clickedItems.add(userData.name);
+                
+                // 顯示物件說明
+                showItemTooltip(userData.name, userData.meaning);
+                
+                // 物件反應動畫
+                const bounce = () => {
+                    const duration = 500;
+                    const startTime = Date.now();
+                    const startScale = item.scale.x;
+                    
+                    function animate() {
+                        const elapsed = Date.now() - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        
+                        const scale = startScale + Math.sin(progress * Math.PI) * 0.3;
+                        item.scale.set(scale, scale, scale);
+                        
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        }
+                    }
+                    
+                    animate();
+                };
+                
+                bounce();
+                
+                // 檢查是否所有物件都被點擊
+                if (clickedItems.size === items.length) {
+                    setTimeout(() => {
+                        showMessage("你在害怕選擇什麼？");
+                        setTimeout(() => {
+                            document.getElementById('pathInfo').classList.remove('show');
+                            document.getElementById('questionBox').classList.add('show');
+                        }, 3000);
+                    }, 1500);
+                }
+            }
+        }
+        
+        function showItemTooltip(name, meaning) {
+            const tooltip = document.getElementById('itemTooltip');
+            document.getElementById('tooltipTitle').textContent = name;
+            document.getElementById('tooltipContent').textContent = meaning;
+            tooltip.classList.add('show');
+            
+            setTimeout(() => {
+                tooltip.classList.remove('show');
+            }, 3000);
+        }
+        
+        function showMessage(message) {
+            const popup = document.getElementById('messagePopup');
+            popup.textContent = message;
+            popup.classList.add('show');
+            
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 初始化
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await initAR();
+                setupInteraction();
+            } catch (error) {
+                console.error('AR 初始化失敗:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<p style="color: red;">AR 載入失敗<br>請確認相機權限已開啟</p>' +
+                    '<a href="sel-4-direct.html" style="color: #667eea; margin-top: 20px; display: inline-block;">直接觀看動畫 →</a>';
+            }
         });
-        renderer.render(scene, camera);
-      });
-    };
-
-    startAR();
-  </script>
+    </script>
 </body>
 </html>
